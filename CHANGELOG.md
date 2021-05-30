@@ -5,6 +5,7 @@
 ### Added
 
 - Init the Model
+- Draw bricks
 
 ### Changed
 
