@@ -21,11 +21,23 @@ type alias Color =
     , green : Int
     }
 
+type alias Rectangle =
+    {
+    color : Color,
+    leftTopPosition : (Float,Float),
+    width: Float,
+    height: Float
+    }
 
-type alias ModelC =
+type alias Circle =
     { color : Color
-    , time : Float
     , position : ( Float, Float )
+    , r : Float
+    }
+
+
+type alias Ball =
+    { shape : Circle
     }
 
 
@@ -36,16 +48,16 @@ type alias Brick =
 
 
 type alias Paddle =
-    { length : Int
-    , leftLocation : Float
+    { 
+        shape: Rectangle
     }
 
 
 type alias Model =
     { brick : List Brick
     , paddle : Paddle
-    , brickSize : ( Int, Int )
-    , circle : ModelC
+    , brickSize : ( Int, Int )  -- To do: be changed to the whole size
+    , ball : Ball
     }
 
 
@@ -74,38 +86,36 @@ getcolor color =
     "rgb(" ++ r ++ "," ++ g ++ "," ++ b ++ ")"
 
 
-main =
-    Browser.element
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
+
 
 
 setBricks : Int -> Int -> List Brick -> List Brick
 setBricks a b l =
-    l ++ [ Brick ( a, b ) (Color 101 101 101) ]
-
+    l ++ [  Brick ( a, b ) (Color 101 101 101)]
 
 initBricks : Int -> Int -> List Brick
 initBricks a b =
     for_nonconstant 0 a (for_constant 0 b setBricks) []
 
 
-initPaddle : Int -> Float -> Paddle
-initPaddle a b =
-    Paddle a b
+initPaddle : Int -> Float -> Int -> (Float,Float) ->Paddle
+initPaddle a b c d=
+    Paddle (Rectangle (Color 101 101 101) (75,105) 50 5 )
+
+
+initCircle : Circle
+initCircle =
+    Circle (Color 255 0 0) ( 100, 100 ) 5
+
+
+initBall : Ball
+initBall =
+    Ball initCircle
 
 
 initModel : Model
 initModel =
-    Model (initBricks 10 5) (initPaddle 5 10) ( 10, 5 ) initModelC
-
-
-initModelC : ModelC
-initModelC =
-    ModelC (gettimecolor 10) 0 ( 100, 100 )
+    Model (initBricks 10 5) (initPaddle 5 10 2 ( 0 , 150 )) ( 10, 5 ) initBall
 
 
 init : () -> ( Model, Cmd Msg )
@@ -170,48 +180,55 @@ view model =
         ]
         [ Svg.svg
             [ SvgAttr.width (fromInt (Tuple.first model.brickSize * gridsizeX))
-            , SvgAttr.height (fromInt (Tuple.second model.brickSize * gridsizeY))
+            , SvgAttr.height (fromInt ((Tuple.second model.brickSize * gridsizeY) + 200)) --Magic number: To do: be changed
             ]
-            (List.concat (singleton (viewcircle model.circle)++(List.map viewGrid model.brick))))
-            
+            (viewBrick model.brick ++ viewBall model.ball++ viewPaddle model.paddle)
         ]
 
 
-viewcircle : ModelC -> Svg Msg
-viewcircle a =
+viewBrick : List Brick -> List (Svg Msg)
+viewBrick a =
+    List.map viewGrid a
+
+
+viewBall : Ball -> List (Svg Msg)
+viewBall a =
+    viewCircle a.shape
+
+viewCircle : Circle -> List(Svg Msg)
+viewCircle a=
     let
         ( cx, cy ) =
             a.position
     in
-    Svg.circle
+    [ Svg.circle
         [ SvgAttr.cx (String.fromFloat cx ++ "px")
         , SvgAttr.cy (String.fromFloat cy ++ "px")
-        , SvgAttr.width "200px"
-        , SvgAttr.height "500px"
-        , SvgAttr.r "20px"
-        , SvgAttr.fill (getcolor (gettimecolor a.time))
+        , SvgAttr.r (String.fromFloat a.r ++ "px")
+        , SvgAttr.fill (getcolor a.color)
         ]
         []
+    ]
 
+
+viewRectangle : Rectangle -> List (Svg Msg)
+viewRectangle a=
+    [ Svg.rect
+        [ SvgAttr.width (String.fromFloat a.width ++ "px")
+        , SvgAttr.height (String.fromFloat a.height ++ "px")
+        , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition)++"px")
+        , SvgAttr.y (String.fromFloat (Tuple.second a.leftTopPosition)++"px")
+        , SvgAttr.fill (getcolor a.color)
+        ]
+        []
+    ]
+viewPaddle : Paddle -> List (Svg Msg)
+viewPaddle a =
+    viewRectangle a.shape
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update a b =
     ( b, Cmd.none )
-
-
-gettimecolor : Float -> Color
-gettimecolor time =
-    let
-        r =
-            round ((sin time + 1) / 2 * 255)
-
-        g =
-            round ((sin (time + 3.14 * 2 / 3) + 1) / 2 * 255)
-
-        b =
-            round ((sin (time + 3.14 * 4 / 3) + 1) / 2 * 255)
-    in
-    Color r g b
 
 
 subscriptions : Model -> Sub Msg
@@ -219,7 +236,10 @@ subscriptions a =
     Sub.batch []
 
 
-
---Initialization
---Write your View func here
---Update
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
