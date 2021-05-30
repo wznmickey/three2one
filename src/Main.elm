@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser exposing (element)
 import Browser.Dom exposing (Viewport, getViewport)
-import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onResize)
+import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onMouseMove, onResize)
 import Debug exposing (toString)
 import For exposing (..)
 import Html exposing (..)
@@ -10,7 +10,7 @@ import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
 import String exposing (fromFloat, fromInt)
 import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Svg.Attributes as SvgAttr exposing (color, cx)
 import Task exposing (..)
 import Tuple
 
@@ -19,6 +19,13 @@ type alias Color =
     { red : Int
     , blue : Int
     , green : Int
+    }
+
+
+type alias ModelC =
+    { color : Color
+    , time : Float
+    , position : ( Float, Float )
     }
 
 
@@ -38,6 +45,7 @@ type alias Model =
     { brick : List Brick
     , paddle : Paddle
     , brickSize : ( Int, Int )
+    , circle : ModelC
     }
 
 
@@ -92,7 +100,12 @@ initPaddle a b =
 
 initModel : Model
 initModel =
-    Model (initBricks 10 5) (initPaddle 5 10) ( 10, 5 )
+    Model (initBricks 10 5) (initPaddle 5 10) ( 10, 5 ) initModelC
+
+
+initModelC : ModelC
+initModelC =
+    ModelC (gettimecolor 10) 0 ( 100, 100 )
 
 
 init : () -> ( Model, Cmd Msg )
@@ -159,8 +172,26 @@ view model =
             [ SvgAttr.width (fromInt (Tuple.first model.brickSize * gridsizeX))
             , SvgAttr.height (fromInt (Tuple.second model.brickSize * gridsizeY))
             ]
-            (List.map viewGrid model.brick)
+            (List.concat (singleton (viewcircle model.circle)++(List.map viewGrid model.brick))))
+            
         ]
+
+
+viewcircle : ModelC -> Svg Msg
+viewcircle a =
+    let
+        ( cx, cy ) =
+            a.position
+    in
+    Svg.circle
+        [ SvgAttr.cx (String.fromFloat cx ++ "px")
+        , SvgAttr.cy (String.fromFloat cy ++ "px")
+        , SvgAttr.width "200px"
+        , SvgAttr.height "500px"
+        , SvgAttr.r "20px"
+        , SvgAttr.fill (getcolor (gettimecolor a.time))
+        ]
+        []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -168,6 +199,27 @@ update a b =
     ( b, Cmd.none )
 
 
+gettimecolor : Float -> Color
+gettimecolor time =
+    let
+        r =
+            round ((sin time + 1) / 2 * 255)
+
+        g =
+            round ((sin (time + 3.14 * 2 / 3) + 1) / 2 * 255)
+
+        b =
+            round ((sin (time + 3.14 * 4 / 3) + 1) / 2 * 255)
+    in
+    Color r g b
+
+
 subscriptions : Model -> Sub Msg
 subscriptions a =
     Sub.batch []
+
+
+
+--Initialization
+--Write your View func here
+--Update
