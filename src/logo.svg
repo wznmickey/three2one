@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"> 
+    <circle cx="100" cy="200" r="75" stroke="black" stroke-width="2" fill="transparent" />
+    <circle cx="200" cy="200" r="75" stroke="black" stroke-width="2" fill="transparent" />
+    <circle cx="150" cy="113.4" r="75" stroke="black" stroke-width="2" fill="transparent" />
+    <text x="100" y="100" fill="blue" textLength="100">Three 2 One</text>
+</svg> 
