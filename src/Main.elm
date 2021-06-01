@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Browser exposing (element)
 import Browser.Dom exposing (Viewport, getViewport)
-import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onResize)
 import Debug exposing (toString)
 import For exposing (..)
 import Html exposing (..)
@@ -10,7 +9,7 @@ import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
 import String exposing (fromFloat, fromInt)
 import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Svg.Attributes as SvgAttr exposing (color, cx)
 import Task exposing (..)
 import Tuple
 
@@ -22,6 +21,26 @@ type alias Color =
     }
 
 
+type alias Rectangle =
+    { color : Color
+    , leftTopPosition : ( Float, Float )
+    , width : Float
+    , height : Float
+    }
+
+
+type alias Circle =
+    { color : Color
+    , position : ( Float, Float )
+    , r : Float
+    }
+
+
+type alias Ball =
+    { shape : Circle
+    }
+
+
 type alias Brick =
     { location : ( Int, Int )
     , color : Color
@@ -29,15 +48,15 @@ type alias Brick =
 
 
 type alias Paddle =
-    { length : Int
-    , leftLocation : Float
+    { shape : Rectangle
     }
 
 
 type alias Model =
     { brick : List Brick
     , paddle : Paddle
-    , brickSize : ( Int, Int )
+    , brickSize : ( Int, Int ) -- To do: be changed to the whole size
+    , ball : Ball
     }
 
 
@@ -66,15 +85,6 @@ getcolor color =
     "rgb(" ++ r ++ "," ++ g ++ "," ++ b ++ ")"
 
 
-main =
-    Browser.element
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
-
-
 setBricks : Int -> Int -> List Brick -> List Brick
 setBricks a b l =
     l ++ [ Brick ( a, b ) (Color 101 101 101) ]
@@ -85,14 +95,24 @@ initBricks a b =
     for_nonconstant 0 a (for_constant 0 b setBricks) []
 
 
-initPaddle : Int -> Float -> Paddle
-initPaddle a b =
-    Paddle a b
+initPaddle : Int -> Float -> Int -> ( Float, Float ) -> Paddle
+initPaddle a b c d =
+    Paddle (Rectangle (Color 101 101 101) ( 75, 105 ) 50 5)
+
+
+initCircle : Circle
+initCircle =
+    Circle (Color 255 0 0) ( 100, 100 ) 5
+
+
+initBall : Ball
+initBall =
+    Ball initCircle
 
 
 initModel : Model
 initModel =
-    Model (initBricks 10 5) (initPaddle 5 10) ( 10, 5 )
+    Model (initBricks 10 5) (initPaddle 5 10 2 ( 0, 150 )) ( 10, 5 ) initBall
 
 
 init : () -> ( Model, Cmd Msg )
@@ -157,10 +177,54 @@ view model =
         ]
         [ Svg.svg
             [ SvgAttr.width (fromInt (Tuple.first model.brickSize * gridsizeX))
-            , SvgAttr.height (fromInt (Tuple.second model.brickSize * gridsizeY))
+            , SvgAttr.height (fromInt ((Tuple.second model.brickSize * gridsizeY) + 200)) --Magic number: To do: be changed
             ]
-            (List.map viewGrid model.brick)
+            (viewBrick model.brick ++ viewBall model.ball ++ viewPaddle model.paddle)
         ]
+
+
+viewBrick : List Brick -> List (Svg Msg)
+viewBrick a =
+    List.map viewGrid a
+
+
+viewBall : Ball -> List (Svg Msg)
+viewBall a =
+    viewCircle a.shape
+
+
+viewCircle : Circle -> List (Svg Msg)
+viewCircle a =
+    let
+        ( cx, cy ) =
+            a.position
+    in
+    [ Svg.circle
+        [ SvgAttr.cx (String.fromFloat cx ++ "px")
+        , SvgAttr.cy (String.fromFloat cy ++ "px")
+        , SvgAttr.r (String.fromFloat a.r ++ "px")
+        , SvgAttr.fill (getcolor a.color)
+        ]
+        []
+    ]
+
+
+viewRectangle : Rectangle -> List (Svg Msg)
+viewRectangle a =
+    [ Svg.rect
+        [ SvgAttr.width (String.fromFloat a.width ++ "px")
+        , SvgAttr.height (String.fromFloat a.height ++ "px")
+        , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition) ++ "px")
+        , SvgAttr.y (String.fromFloat (Tuple.second a.leftTopPosition) ++ "px")
+        , SvgAttr.fill (getcolor a.color)
+        ]
+        []
+    ]
+
+
+viewPaddle : Paddle -> List (Svg Msg)
+viewPaddle a =
+    viewRectangle a.shape
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -171,3 +235,12 @@ update a b =
 subscriptions : Model -> Sub Msg
 subscriptions a =
     Sub.batch []
+
+
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
