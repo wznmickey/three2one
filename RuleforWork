@@ -2,11 +2,8 @@ This file is used to rule our cooperation on project 1.
 
 Workflow:
 
-self-id branch -------------> check branch -------------> master branch -------------> release
-    ^          | merge to   (after checking)  merge to                    release
-    | merge to |
-    ------------
-
+change branch <------------> check branch -------------> master branch -------------> release
+                 merge to  (after checking)  merge to                      release
 Commit format:
 
 p${project_id}m${milestone_id}_${one's action}
