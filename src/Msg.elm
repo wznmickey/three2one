@@ -9,3 +9,4 @@ type Msg
     | Tick Float
     | Empty
     | KeyPress Dir
+    | KeyRelease Dir
