@@ -25,3 +25,12 @@ viewRectangle a =
         ]
         []
     ]
+
+
+
+-- Rectangle -> Angle -> Length -> Rectangle
+
+
+moveRectangle : Rectangle -> Float -> Float -> Rectangle
+moveRectangle shape angle length =
+    { shape | leftTopPosition = ( Tuple.first shape.leftTopPosition + (cos (Basics.degrees angle) * length), Tuple.second shape.leftTopPosition - (sin (Basics.degrees angle) * length) ) }

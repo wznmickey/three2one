@@ -5,12 +5,14 @@ import Base exposing (..)
 import Brick exposing (..)
 import Browser exposing (element)
 import Browser.Events exposing (onAnimationFrameDelta, onKeyDown)
+import Browser.Navigation exposing (Key)
 import Color exposing (..)
 import Debug exposing (toString)
 import For exposing (..)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
+import Json.Decode as Decode
 import Meet exposing (..)
 import Msg exposing (..)
 import Paddle exposing (..)
@@ -70,6 +72,7 @@ update msg model =
     ( model, Cmd.none )
         |> updateBall msg
         |> checkBallMeet msg
+        |> updatePaddle msg
 
 
 updateBall : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -80,6 +83,16 @@ updateBall msg ( model, cmd ) =
 
         BallMeet dir ->
             ( { model | ball = ballRotate model.ball dir }, cmd )
+
+        _ ->
+            ( model, cmd )
+
+
+updatePaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+updatePaddle msg ( model, cmd ) =
+    case msg of
+        KeyPress x ->
+            ( { model | paddle = movePaddle model.paddle x }, cmd )
 
         _ ->
             ( model, cmd )
@@ -109,6 +122,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ onAnimationFrameDelta Tick
+        , onKeyDown (Decode.map key keyCode)
         ]
 
 
@@ -119,3 +133,16 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+key : Int -> Msg
+key i =
+    case i of
+        37 ->
+            KeyPress Left
+
+        39 ->
+            KeyPress Right
+
+        _ ->
+            KeyPress NoDir

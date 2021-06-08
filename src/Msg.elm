@@ -8,3 +8,4 @@ type Msg
     = BallMeet Dir
     | Tick Float
     | Empty
+    | KeyPress Dir

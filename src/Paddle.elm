@@ -1,5 +1,6 @@
 module Paddle exposing (..)
 
+import Base exposing (..)
 import Color exposing (..)
 import Msg exposing (..)
 import Rectangle exposing (..)
@@ -20,3 +21,8 @@ initPaddle a b c d =
 viewPaddle : Paddle -> List (Svg Msg)
 viewPaddle a =
     viewRectangle a.shape
+
+
+movePaddle : Paddle -> Dir -> Paddle
+movePaddle p d =
+    { p | shape = moveRectangle p.shape (dir2Float d) 5 }
