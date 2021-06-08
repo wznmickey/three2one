@@ -16,7 +16,7 @@ type alias Ball =
 
 initBall : Ball
 initBall =
-    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) 0.05 90
+    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) 0.05 45
 
 
 viewBall : Ball -> List (Svg Msg)
