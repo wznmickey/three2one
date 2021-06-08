@@ -2,6 +2,7 @@ module Paddle exposing (..)
 
 import Base exposing (..)
 import Color exposing (..)
+import Html exposing (p)
 import Msg exposing (..)
 import Rectangle exposing (..)
 import Svg exposing (Svg)
@@ -25,4 +26,13 @@ viewPaddle a =
 
 movePaddle : Paddle -> Dir -> Paddle
 movePaddle p d =
-    { p | shape = moveRectangle p.shape (dir2Float d) 5 }
+    if d == NoDir then
+        p
+
+    else
+        { p | shape = moveRectangle p.shape (dir2Float d) 1 }
+
+
+checkPaddlePosition : Paddle -> ( Float, Float ) -> Paddle
+checkPaddlePosition p ( x, y ) =
+    { p | shape = checkRectanglePosition p.shape ( x, y ) }
