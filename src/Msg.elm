@@ -1,9 +1,10 @@
 module Msg exposing (..)
-type Demo
-    = Demo1
-    | Demo2
+
+import Base exposing (..)
+import Html exposing (time)
 
 
-type alias Msg =
-    { init : Demo
-    }
+type Msg
+    = BallMeet Dir
+    | Tick Float
+    | Empty
