@@ -4,7 +4,7 @@ import Ball exposing (..)
 import Base exposing (..)
 import Brick exposing (..)
 import Browser exposing (element)
-import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp,onVisibilityChange)
+import Browser.Events exposing (Visibility(..), onAnimationFrameDelta, onKeyDown, onKeyUp, onVisibilityChange)
 import Browser.Navigation exposing (Key)
 import Color exposing (..)
 import Debug exposing (toString)
@@ -30,10 +30,14 @@ wholeHeight =
 wholeWidth =
     400
 
-type GameStatus 
+
+type GameStatus
     = Play
     | Pause
     | Stop
+    | WaitToContinue
+
+
 type alias Model =
     { brick : List Brick
     , paddle : Paddle
@@ -47,7 +51,7 @@ type alias Model =
 
 initModel : Model
 initModel =
-    Model (initBricks 20 10) (initPaddle (Color 101 101 101) ( 175, 300 ) 80 5) ( 20, 10 ) initBall ( wholeWidth, wholeHeight ) NoDir
+    Model (initBricks 20 10) (initPaddle (Color 101 101 101) ( 175, 300 ) 80 5) ( 20, 10 ) initBall ( wholeWidth, wholeHeight ) NoDir Play
 
 
 init : () -> ( Model, Cmd Msg )
@@ -69,17 +73,66 @@ view model =
             , SvgAttr.height (fromInt wholeHeight)
             ]
             (viewBrickList model.brick ++ viewBall model.ball ++ viewPaddle model.paddle)
+        , p [ HtmlAttr.hidden (not (checkPause model)) ] [ text "Press space to continue" ]
         ]
+
+
+checkPause : Model -> Bool
+checkPause a =
+    if a.gameStatus == Pause then
+        True
+
+    else if a.gameStatus == WaitToContinue then
+        True
+
+    else
+        False
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     ( model, Cmd.none )
-        |> updateKey msg
-        |> updateBall msg
-        |> checkBallMeet msg
-        |> updatePaddle msg
-        |> checkPosition msg
+        |> checkStatus msg
+        |> gameRunUpdate msg
+
+
+gameRunUpdate : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+gameRunUpdate msg ( model, cmd ) =
+    case model.gameStatus of
+        Play ->
+            ( model, cmd )
+                |> updateKey msg
+                |> updateBall msg
+                |> checkBallMeet msg
+                |> updatePaddle msg
+                |> checkPosition msg
+
+        _ ->
+            ( model, cmd )
+
+
+checkStatus : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+checkStatus msg ( model, cmd ) =
+    case msg of
+        OnView x ->
+            if x == Hidden then
+                ( { model | gameStatus = Pause }, cmd )
+
+            else if model.gameStatus == Pause then
+                ( { model | gameStatus = WaitToContinue }, cmd )
+
+            else
+                ( model, cmd )
+
+        Continue ->
+            if model.gameStatus == WaitToContinue then
+                ( { model | gameStatus = Play }, cmd )
+
+            else
+                ( model, cmd )
+
+        _ ->
+            ( model, cmd )
 
 
 checkPosition : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -150,17 +203,22 @@ checkBallMeet msg ( model, cmd ) =
                 nowball3 =
                     (nowball2 |> ballRotate) (checkBallBorderMeet nowball2 model.size)
             in
-                    ( { model | ball = nowball3 , 
-                                brick = List.filter
-                                    (\a->
-                                     case deleteBrick nowball3.shape a of
-                                       Nothing ->
-                                        True
+            ( { model
+                | ball = nowball3
+                , brick =
+                    List.filter
+                        (\a ->
+                            case deleteBrick nowball3.shape a of
+                                Nothing ->
+                                    True
 
-                                       Just ( c, d ) ->
-                                        False
-                                    )
-                                    model.brick }, cmd )
+                                Just ( c, d ) ->
+                                    False
+                        )
+                        model.brick
+              }
+            , cmd
+            )
 
         _ ->
             ( model, cmd )
@@ -172,7 +230,7 @@ subscriptions model =
         [ onAnimationFrameDelta Tick
         , onKeyUp (Decode.map keyRelease keyCode)
         , onKeyDown (Decode.map keyPress keyCode)
-        , onVisibilityChange Onview
+        , onVisibilityChange OnView
         ]
 
 
@@ -193,6 +251,9 @@ keyPress i =
 
         39 ->
             KeyPress Right
+
+        32 ->
+            Continue
 
         _ ->
             KeyPress NoDir
