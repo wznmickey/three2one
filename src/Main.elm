@@ -51,7 +51,7 @@ type alias Model =
 
 initModel : Model
 initModel =
-    Model (initBricks 20 10) (initPaddle (Color 101 101 101) ( 175, 300 ) 80 5) ( 20, 10 ) initBall ( wholeWidth, wholeHeight ) NoDir Play
+    Model (initBricks 10 10) (initPaddle (Color 101 101 101) ( 175, 300 ) 80 5) ( 10, 10 ) initBall ( wholeWidth, wholeHeight ) NoDir Play
 
 
 init : () -> ( Model, Cmd Msg )
