@@ -17,7 +17,7 @@ Developed by Three 2 One @ SliverFocs.
 
 Our Name: Three 2 One.
 
-![us](./src/logo.svg)
+![us](./assets/logo.svg)
 
 From:
 
@@ -30,9 +30,10 @@ So we name us Three (person) 2 (To) One (wonderful project).
 This file is used to rule our cooperation on project 1.
 
 Workflow:
-
+```
 change branch <------------> check branch -------------> master branch -------------> release
                  merge to  (after checking)  merge to                      release
+```
 Commit format:
 
 ```
