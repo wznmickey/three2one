@@ -1,6 +1,7 @@
 module Msg exposing (..)
 
 import Base exposing (..)
+import Browser.Events exposing (Visibility)
 import Html exposing (time)
 
 
@@ -10,4 +11,5 @@ type Msg
     | Empty
     | KeyPress Dir
     | KeyRelease Dir
-    | OnView Visibility 
+    | OnView Visibility
+    | Continue
