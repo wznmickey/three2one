@@ -7,11 +7,14 @@ Developed by Three 2 One @ SliverFocs.
 ### Coding
 
 - Module `For` for future developing.
-- Good Model organization
+- Good Model organization.
+- Good file organization.
+- Low delay and continuous of object moving.
 
 ### Viewing
 
 - Beautiful drawings.
+- Auto pause.
 
 ## About us
 
