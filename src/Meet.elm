@@ -36,7 +36,7 @@ checkBallPaddleMeet : Ball -> Paddle -> Dir
 checkBallPaddleMeet ball paddle =
     checkCircleRectangle ball.shape paddle.shape
 
-
+--simulate the process of the ball hitting the bricks
 checkCircleRectangle : Circle -> Rectangle -> Dir
 checkCircleRectangle circle rectangle =
     if (abs (Tuple.first circle.position - Tuple.first rectangle.leftTopPosition) <= circle.r) && (Tuple.second circle.position >= Tuple.second rectangle.leftTopPosition && Tuple.second circle.position <= rectangle.height + Tuple.second rectangle.leftTopPosition) then

@@ -43,7 +43,7 @@ moveRectangle shape angle length =
     in
     { shape | leftTopPosition = ( newx, newy ) }
 
-
+--Let the rectangles namely the bricks respond to the collision of the balls
 checkRectanglePosition : Rectangle -> ( Float, Float ) -> Rectangle
 checkRectanglePosition r ( x, y ) =
     let

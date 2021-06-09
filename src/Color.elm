@@ -2,7 +2,7 @@ module Color exposing (..)
 
 import String exposing (fromInt)
 
-
+--define the basic types of colors
 type alias Color =
     { red : Int
     , blue : Int

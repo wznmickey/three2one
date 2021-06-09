@@ -32,7 +32,7 @@ movePaddle p d =
     else
         { p | shape = moveRectangle p.shape (dir2Float d) 1 }
 
-
+--Plot the bricks to pile up in a regular pattern
 checkPaddlePosition : Paddle -> ( Float, Float ) -> Paddle
 checkPaddlePosition p ( x, y ) =
     { p | shape = checkRectanglePosition p.shape ( x, y ) }
