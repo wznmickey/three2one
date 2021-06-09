@@ -8,6 +8,7 @@ import Paddle exposing (..)
 import Rectangle exposing (..)
 
 
+
 checkBallBrickMeet : Ball -> List Brick -> Dir
 checkBallBrickMeet ball brick =
     Maybe.withDefault NoDir
@@ -53,6 +54,24 @@ checkCircleRectangle circle rectangle =
     else
         NoDir
 
+deleteBrick : Circle -> Brick -> Maybe ( Float, Float )
+deleteBrick circle rectangle =
+
+    if (abs (Tuple.first circle.position - Tuple.first rectangle.shape.leftTopPosition) <= circle.r) && (Tuple.second circle.position >= Tuple.second rectangle.shape.leftTopPosition && Tuple.second circle.position <= rectangle.shape.height + Tuple.second rectangle.shape.leftTopPosition) then
+     Just rectangle.shape.leftTopPosition
+
+    else if (abs (Tuple.first circle.position - (Tuple.first rectangle.shape.leftTopPosition + rectangle.shape.width)) <= circle.r) && (Tuple.second circle.position >= Tuple.second rectangle.shape.leftTopPosition && Tuple.second circle.position <= rectangle.shape.height + Tuple.second rectangle.shape.leftTopPosition) then
+      Just  rectangle.shape.leftTopPosition
+
+    else if (abs (Tuple.second circle.position - Tuple.second rectangle.shape.leftTopPosition) <= circle.r) && (Tuple.first circle.position >= Tuple.first rectangle.shape.leftTopPosition && Tuple.first circle.position <= rectangle.shape.width + Tuple.first rectangle.shape.leftTopPosition) then
+      Just rectangle.shape.leftTopPosition
+
+    else if (abs (Tuple.second circle.position - (Tuple.second rectangle.shape.leftTopPosition + rectangle.shape.height)) <= circle.r) && (Tuple.first circle.position >= Tuple.first rectangle.shape.leftTopPosition && Tuple.first circle.position <= rectangle.shape.width + Tuple.first rectangle.shape.leftTopPosition) then
+       Just rectangle.shape.leftTopPosition
+
+    else 
+       Nothing 
+        
 
 checkBallBorderMeet : Ball -> ( Float, Float ) -> Dir
 checkBallBorderMeet ball ( x, y ) =
