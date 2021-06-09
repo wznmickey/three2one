@@ -4,7 +4,7 @@ import Ball exposing (..)
 import Base exposing (..)
 import Brick exposing (..)
 import Browser exposing (element)
-import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp)
+import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp,onVisibilityChange)
 import Browser.Navigation exposing (Key)
 import Color exposing (..)
 import Debug exposing (toString)
@@ -30,7 +30,10 @@ wholeHeight =
 wholeWidth =
     400
 
-
+type GameStatus 
+    = Play
+    | Pause
+    | Stop
 type alias Model =
     { brick : List Brick
     , paddle : Paddle
@@ -38,6 +41,7 @@ type alias Model =
     , ball : Ball
     , size : ( Float, Float )
     , keyPress : Dir
+    , gameStatus : GameStatus
     }
 
 
@@ -168,6 +172,7 @@ subscriptions model =
         [ onAnimationFrameDelta Tick
         , onKeyUp (Decode.map keyRelease keyCode)
         , onKeyDown (Decode.map keyPress keyCode)
+        , onVisibilityChange Onview
         ]
 
 
