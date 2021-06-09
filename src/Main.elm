@@ -146,7 +146,17 @@ checkBallMeet msg ( model, cmd ) =
                 nowball3 =
                     (nowball2 |> ballRotate) (checkBallBorderMeet nowball2 model.size)
             in
-            ( { model | ball = nowball3 }, cmd )
+                    ( { model | ball = nowball3 , 
+                                brick = List.filter
+                                    (\a->
+                                     case deleteBrick nowball3.shape a of
+                                       Nothing ->
+                                        True
+
+                                       Just ( c, d ) ->
+                                        False
+                                    )
+                                    model.brick }, cmd )
 
         _ ->
             ( model, cmd )
