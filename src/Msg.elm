@@ -10,3 +10,4 @@ type Msg
     | Empty
     | KeyPress Dir
     | KeyRelease Dir
+    | OnView Visibility 
