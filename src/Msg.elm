@@ -1,9 +1,15 @@
 module Msg exposing (..)
 
-import Base exposing (..)
+import Dir exposing (..)
 import Browser.Events exposing (Visibility)
-import Html exposing (time)
+import Time exposing(..)
 
+type GameStatus
+    = Play
+    | Pause
+    | Stop
+    | WaitToContinue
+    | Continue
 
 type Msg
     = BallMeet Dir
@@ -12,4 +18,6 @@ type Msg
     | KeyPress Dir
     | KeyRelease Dir
     | OnView Visibility
-    | Continue
+    | Game GameStatus
+    | GetTime Posix
+    | Init 

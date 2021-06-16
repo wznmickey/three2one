@@ -2,24 +2,24 @@ module For exposing (..)
 
 -- First Int (`i`) is to check how the for process
 -- Second Int (`n`) set the times of function `f`
--- Type constant (`c`) is the outer environment constant
--- ( constant -> Int->  io -> io) set a function which use (outer environemnt constant) & (for function process) to map a function from type io to type io
+-- Type outer (`o`) is the outer environment data
+-- ( outer -> Int->  io -> (io,outer)) set a function which use (outer environment data) & (for function process) to map a function from type io to type io
 -- the left is used for the above function
 
 
-for_constant : Int -> Int -> (constant -> Int -> io -> io) -> constant -> io -> io
-for_constant i n f c x =
+for_outer : Int -> Int -> (outer -> Int -> io -> ( io, outer )) -> ( io, outer ) -> ( io, outer )
+for_outer i n f (x,o) =
+    if i >= n then
+        ( x, o )
+
+    else
+        for_outer (i + 1) n f ( f o i x)
+
+
+for_no_outer : Int -> Int -> (Int -> io -> io) -> io -> io
+for_no_outer i n f x =
     if i >= n then
         x
 
     else
-        for_constant (i + 1) n f c (f c i x)
-
-
-for_nonconstant : Int -> Int -> (Int -> io -> io) -> io -> io
-for_nonconstant i n f x =
-    if i >= n then
-        x
-
-    else
-        for_nonconstant (i + 1) n f (f i x)
+        for_no_outer (i + 1) n f (f i x)
