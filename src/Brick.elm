@@ -45,7 +45,7 @@ viewBrick brick =
         , SvgAttr.x (toString (Tuple.first brick.shape.leftTopPosition))
         , SvgAttr.y (toString (Tuple.second brick.shape.leftTopPosition))
         , SvgAttr.fill (getcolor brick.shape.color)
-        , SvgAttr.stroke "black"
+        , SvgAttr.stroke "pink"
         ]
         []
 

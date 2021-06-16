@@ -7,32 +7,122 @@ import Msg exposing (..)
 import Rectangle exposing (..)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr exposing (color, cx)
+import Html exposing (div)
+import Html.Attributes exposing (style)
+import Html exposing (text)
 
 
 type alias Paddle =
-    { shape : Rectangle
+    { shape : List Rectangle
     }
 
+secondPaddle : Paddle -> Rectangle
+secondPaddle pad = 
+    case  List.head (List.drop 1 pad.shape) of                  
+            Nothing ->                              
+                 rec
+            Just val ->                             
+                 val
+
+firstPaddle : Paddle -> Rectangle
+firstPaddle pad = 
+        case  List.head pad.shape of                  
+                Nothing ->                              
+                     rec
+                Just val ->                             
+                    val
 
 initPaddle : Color -> ( Float, Float ) -> Float -> Float -> Paddle
-initPaddle a b c d =
-    Paddle (Rectangle a b c d)
+initPaddle a (x,y) c d =
+  { shape = [ (Rectangle a (x,y) c d), (Rectangle a (x+400,y) c d) ] }
 
 
-viewPaddle : Paddle -> List (Svg Msg)
-viewPaddle a =
-    viewRectangle a.shape
+seePaddle : Paddle -> List (Svg Msg)
+seePaddle a =
+    List.map (\therec->viewPaddle therec) a.shape 
+    
+checkViewable : (Float,Float) -> Bool
+checkViewable (x,y) =
+    if (x > 0) && (x < 400) then
+        True
+    else False
+
+checkLPart : Float -> Bool
+checkLPart x =
+    if (x >= 90) && (x <= 110) then
+        True
+    else False
+
+checkRPart : Float -> Bool
+checkRPart x =
+    if (x >= 290) && (x <= 310) then
+        True
+    else False
+
+
+newPadLF : Paddle -> Paddle
+newPadLF opad =
+    let
+        secRec = secondPaddle opad
+        firstRec = firstPaddle opad
+    in
+        { shape =  [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ]  }
+
+
+
+newPadRF : Paddle -> Paddle
+newPadRF opad =
+    let
+        secRec = secondPaddle opad
+        firstRec = firstPaddle opad
+    in
+        { shape = [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ]  }
+
+newPadRS : Paddle -> Paddle
+newPadRS opad =
+    let
+        secRec = secondPaddle opad
+        firstRec = firstPaddle opad
+    in
+        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec] }
+
+newPadLS : Paddle -> Paddle
+newPadLS opad =
+    let
+        secRec = secondPaddle opad
+        firstRec = firstPaddle opad
+    in
+        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec] }
+
+updateBothpaddle : Paddle -> Paddle
+updateBothpaddle pAd = 
+    if checkViewable (firstPaddle pAd).leftTopPosition then
+        if checkLPart (Tuple.first (firstPaddle pAd).leftTopPosition)  then
+            newPadLF pAd
+        else if checkRPart (Tuple.first (firstPaddle pAd).leftTopPosition)  then
+            newPadRF pAd
+        else pAd
+    else 
+        if checkLPart (Tuple.first (secondPaddle pAd).leftTopPosition)  then
+            newPadLS pAd
+        else if checkRPart (Tuple.first (secondPaddle pAd).leftTopPosition)  then
+            newPadRS pAd
+        else pAd
 
 
 movePaddle : Paddle -> Dir -> Paddle
 movePaddle p d =
     if d == NoDir then
         p
-
     else
-        { p | shape = moveRectangle p.shape (dir2Float d) 1 }
+         { p | shape = List.map (\here->moveRectangle here (dir2Float d) 2)  p.shape }
 
 
-checkPaddlePosition : Paddle -> ( Float, Float ) -> Paddle
-checkPaddlePosition p ( x, y ) =
-    { p | shape = checkRectanglePosition p.shape ( x, y ) }
+
+
+
+rec : Rectangle
+rec =
+    { color = { red=1,blue=2,green=3}, leftTopPosition = (1,1) , width = 1 , height = 2 }
+
+

@@ -11,12 +11,13 @@ type alias Ball =
     { shape : Circle
     , speed : Float
     , angle : Float
+    , life : Int
     }
 
 
 initBall : Ball
 initBall =
-    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) 0.05 45
+    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) 0.05 45 1
 
 
 viewBall : Ball -> List (Svg Msg)

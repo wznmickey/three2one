@@ -13,3 +13,7 @@ type Msg
     | KeyRelease Dir
     | OnView Visibility
     | Continue
+    | Checklife
+    | Buy1
+    | Buy2
+    | Buy3
