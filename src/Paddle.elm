@@ -1,6 +1,6 @@
 module Paddle exposing (..)
 
-import Base exposing (..)
+import Dir exposing (..)
 import Color exposing (..)
 import Html exposing (p)
 import Msg exposing (..)
