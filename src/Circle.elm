@@ -36,4 +36,4 @@ viewCircle a =
 
 moveCircle : Circle -> Float -> Float -> Circle
 moveCircle c angle length =
-    { c | position = ( Tuple.first c.position + (cos (Basics.degrees angle) * length), Tuple.second c.position - (sin (Basics.degrees angle) * length) ) }
+   { c | position = ( Tuple.first c.position + (cos (Basics.degrees angle) * length), Tuple.second c.position - (sin (Basics.degrees angle) * length) ) }
