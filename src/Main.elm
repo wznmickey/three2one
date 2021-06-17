@@ -116,7 +116,7 @@ renderInfo mod score =
         -- [ style "background" "rgba(245,212,217, 0.7)"
         [ style "color" "pink"
         , style "display"
-            (if mod.money == 0 then
+            (if mod.money < 0 then
                 "block"
 
              else
@@ -132,7 +132,7 @@ renderScore mod =
     div
         [ style "color" "pink"
         , style "display"
-            (if mod.money /= 0 then
+            (if mod.money >= 0 then
                 "block"
 
              else
@@ -148,7 +148,7 @@ renderproperty mod =
     div
         [ style "color" "pink"
         , style "display"
-            (if mod.gameLife /= 0 then
+            (if mod.money >= 0 then
                 "block"
 
              else
@@ -444,11 +444,9 @@ checkBallMeet msg ( model, cmd ) =
                 nowball4 =
                     (nowball3 |> ballRotate) dir
 
-                nl =
-                    model.gameLife + dl
 
                 ngameStatus =
-                    if nl <= 0 then
+                    if oldmoney + List.sum checkMeetBricks <=1  then
                         Stop
 
                     else
@@ -457,7 +455,6 @@ checkBallMeet msg ( model, cmd ) =
             ( { model
                 | ball = nowball4
                 , brick = newbricks
-                , gameLife = nl
                 , gameStatus = ngameStatus
                 , score = oldscore + List.sum checkMeetBricks
                 , money = oldmoney + List.sum checkMeetBricks
