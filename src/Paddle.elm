@@ -14,6 +14,7 @@ import Html exposing (text)
 
 type alias Paddle =
     { shape : List Rectangle
+      ,speed : Float
     }
 
 secondPaddle : Paddle -> Rectangle
@@ -34,7 +35,7 @@ firstPaddle pad =
 
 initPaddle : Color -> ( Float, Float ) -> Float -> Float -> Paddle
 initPaddle a (x,y) c d =
-  { shape = [ (Rectangle a (x,y) c d), (Rectangle a (x+400,y) c d) ] }
+  { shape = [ (Rectangle a (x,y) c d), (Rectangle a (x+400,y) c d) ] , speed = 1 }
 
 
 seePaddle : Paddle -> List (Svg Msg)
@@ -49,13 +50,13 @@ checkViewable (x,y) =
 
 checkLPart : Float -> Bool
 checkLPart x =
-    if (x >= 90) && (x <= 110) then
+    if (x >= 5) && (x <= 150) then
         True
     else False
 
 checkRPart : Float -> Bool
 checkRPart x =
-    if (x >= 290) && (x <= 310) then
+    if (x >= 205) && (x <= 350) then
         True
     else False
 
@@ -66,7 +67,7 @@ newPadLF opad =
         secRec = secondPaddle opad
         firstRec = firstPaddle opad
     in
-        { shape =  [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ]  }
+        { shape =  [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] , speed =opad.speed  }
 
 
 
@@ -76,7 +77,7 @@ newPadRF opad =
         secRec = secondPaddle opad
         firstRec = firstPaddle opad
     in
-        { shape = [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ]  }
+        { shape = [firstRec] ++ [ { secRec | leftTopPosition = ( (Tuple.first firstRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ], speed =opad.speed  }
 
 newPadRS : Paddle -> Paddle
 newPadRS opad =
@@ -84,7 +85,7 @@ newPadRS opad =
         secRec = secondPaddle opad
         firstRec = firstPaddle opad
     in
-        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec] }
+        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) - 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec], speed =opad.speed }
 
 newPadLS : Paddle -> Paddle
 newPadLS opad =
@@ -92,7 +93,7 @@ newPadLS opad =
         secRec = secondPaddle opad
         firstRec = firstPaddle opad
     in
-        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec] }
+        { shape = [ { firstRec | leftTopPosition = ( (Tuple.first secRec.leftTopPosition) + 400 , Tuple.second (secondPaddle opad).leftTopPosition) } ] ++ [secRec], speed =opad.speed }
 
 updateBothpaddle : Paddle -> Paddle
 updateBothpaddle pAd = 
@@ -115,7 +116,7 @@ movePaddle p d =
     if d == NoDir then
         p
     else
-         { p | shape = List.map (\here->moveRectangle here (dir2Float d) 2)  p.shape }
+         { p | shape = List.map (\here->moveRectangle here (dir2Float d) p.speed)  p.shape }
 
 
 

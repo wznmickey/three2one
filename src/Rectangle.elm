@@ -24,6 +24,7 @@ viewRectangle a =
         , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition) ++ "px")
         , SvgAttr.y (String.fromFloat (Tuple.second a.leftTopPosition) ++ "px")
         , SvgAttr.fill (getcolor a.color)
+        
         ]
         []
     ]

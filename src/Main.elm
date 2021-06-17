@@ -35,13 +35,11 @@ type alias Model =
     { modelStatus : ModelStatus
     , brick : List Brick
     , paddle : Paddle
-    , brickSize : ( Int, Int )
     , ball : Ball
     , size : ( Float, Float )
     , keyPress : Dir
     , gameStatus : GameStatus
     , seed : Seed
-    , gameLife : Int
     , score : Int
     , money : Int
     }
@@ -55,9 +53,6 @@ initModel s status =
 
         paddle =
             initPaddle (Color 101 101 101) ( 175, 300 ) 80 5
-
-        brickSize =
-            ( 10, 10 )
 
         ball =
             initBall
@@ -79,16 +74,13 @@ initModel s status =
         seed =
             newSeed1
 
-        life =
-            1
-
         score =
             0
 
         money =
             10
     in
-    Model status brick paddle brickSize ball size key_Press gameStatus seed life score money
+    Model status brick paddle ball size key_Press gameStatus seed score money
 
 
 init : () -> ( Model, Cmd Msg )
@@ -113,6 +105,7 @@ view model =
         , p [ HtmlAttr.hidden (not (checkPause model)) ] [ text "Press space to continue" ]
         , renderInfo model model.score
         , renderScore model
+        , renderproperty model
         , p [] [ text (toString model.ball.speed) ]
         ]
 
@@ -122,17 +115,8 @@ renderInfo mod score =
     div
         -- [ style "background" "rgba(245,212,217, 0.7)"
         [ style "color" "pink"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "50px"
-        , style "font-weight" "bold"
-        , style "line-height" "10"
-        , style "position" "absolute"
-        , style "left" "370px"
-        , style "top" "0"
-        , style "width" "400px"
-        , style "height" "400px"
         , style "display"
-            (if mod.gameLife == 0 then
+            (if mod.money == 0 then
                 "block"
 
              else
@@ -147,15 +131,22 @@ renderScore : Model -> Html Msg
 renderScore mod =
     div
         [ style "color" "pink"
-        , style "font-family" "Helvetica, Arial, sans-serif"
-        , style "font-size" "10px"
-        , style "font-weight" "bold"
-        , style "line-height" "10"
-        , style "position" "absolute"
-        , style "left" "700px"
-        , style "top" "0"
-        , style "width" "400px"
-        , style "height" "400px"
+        , style "display"
+            (if mod.money /= 0 then
+                "block"
+
+             else
+                "none"
+            )
+        ]
+        [ text ("Score: " ++ toString mod.score ++ " Money: " ++ toString mod.money)
+        ]
+
+
+renderproperty : Model -> Html Msg
+renderproperty mod =
+    div
+        [ style "color" "pink"
         , style "display"
             (if mod.gameLife /= 0 then
                 "block"
@@ -164,7 +155,7 @@ renderScore mod =
                 "none"
             )
         ]
-        [ text ("Score: " ++ toString mod.score ++ " Money: " ++ toString mod.money)
+        [ text ("Speed: " ++ toString mod.paddle.speed ++ " Paddle Width: " ++ toString (firstPaddle mod.paddle).width)
         ]
 
 
@@ -188,6 +179,11 @@ checkPause a =
 --     if a.gamelife == 0 then
 --         True
 --     else False
+-- checkDead : Model -> Bool
+-- checkDead a =
+--     if a.gamelife == 0 then
+--         True
+--     else False
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -198,6 +194,49 @@ update msg model =
         |> timeGet msg
         |> checkStatus msg
         |> gameRunUpdate msg
+
+
+checkBuy1 : Model -> Model
+checkBuy1 model =
+    let
+        oldspeed =
+            model.paddle.speed
+
+        oldmoney =
+            model.money
+
+        olddpad =
+            model.paddle
+    in
+    if model.money >= 5 then
+        { model | money = oldmoney - 5, paddle = { olddpad | speed = oldspeed + 1 } }
+
+    else
+        model
+
+
+checkBuy2 : Model -> Model
+checkBuy2 model =
+    let
+        oldwidth =
+            (firstPaddle model.paddle).width
+
+        oldmoney =
+            model.money
+
+        olddpad =
+            model.paddle
+    in
+    if model.money >= 10 then
+        { model | money = oldmoney - 10, paddle = { olddpad | shape = List.map (\theserec -> { theserec | width = oldwidth + 10 }) olddpad.shape } }
+
+    else
+        model
+
+
+checkBuy3 : Model -> Model
+checkBuy3 model =
+    model
 
 
 checkBuy : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -214,35 +253,6 @@ checkBuy msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
-
-
-checkBuy1 : Model -> Model
-checkBuy1 model =
-    model
-
-
-checkBuy2 : Model -> Model
-checkBuy2 model =
-    let
-        oldwidth =
-            (firstPaddle model.paddle).width
-
-        oldmoney =
-            model.money
-
-        olddpad =
-            model.paddle
-    in
-    if model.money >= 1 then
-        { model | money = oldmoney - 1, paddle = { olddpad | shape = List.map (\theserec -> { theserec | width = oldwidth + 20 }) olddpad.shape } }
-
-    else
-        model
-
-
-checkBuy3 : Model -> Model
-checkBuy3 model =
-    model
 
 
 checkInit : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -340,9 +350,9 @@ updateBall msg ( model, cmd ) =
 
         KeyPress Up ->
             ( { model | ball = ballSpeedUp model.ball }, cmd )
-        
+
         KeyPress Down ->
-            ({model|ball=ballSpeedDown model.ball},cmd)
+            ( { model | ball = ballSpeedDown model.ball }, cmd )
 
         _ ->
             ( model, cmd )
@@ -365,8 +375,11 @@ updateKey msg ( model, cmd ) =
             if x /= Left && x /= Right then
                 ( model, cmd )
 
-            else
+            else if (x == Left) || (x == Right) then
                 ( { model | keyPress = x }, cmd )
+
+            else
+                ( model, cmd )
 
         KeyRelease x ->
             if x == model.keyPress then
@@ -390,7 +403,6 @@ checkBallMeet msg ( model, cmd ) =
                 oldscore =
                     model.score
 
-
                 newbricks =
                     List.map
                         (\a ->
@@ -404,8 +416,19 @@ checkBallMeet msg ( model, cmd ) =
                                     { a | show = "hidden" }
                         )
                         model.brick
+
                 checkMeetBricks =
-                    List.map2 (\a b -> if (a.show==b.show) then 0 else 1) newbricks model.brick
+                    List.map2
+                        (\a b ->
+                            if a.show == b.show then
+                                0
+
+                            else
+                                1
+                        )
+                        newbricks
+                        model.brick
+
                 nowball1 =
                     (model.ball |> ballRotate) (checkBallBrickMeet model.ball model.brick)
 
@@ -415,10 +438,11 @@ checkBallMeet msg ( model, cmd ) =
                 nowball2 =
                     (nowball11 |> ballRotate) (checkBallPaddle2Meet nowball11 model.paddle)
 
-                ( nowball3, dl,dir ) =
+                ( nowball3, dl, dir ) =
                     checkBallBorderMeet nowball2 model.size
-                nowball4
-                    =(nowball3 |> ballRotate) dir
+
+                nowball4 =
+                    (nowball3 |> ballRotate) dir
 
                 nl =
                     model.gameLife + dl
@@ -435,8 +459,8 @@ checkBallMeet msg ( model, cmd ) =
                 , brick = newbricks
                 , gameLife = nl
                 , gameStatus = ngameStatus
-                , score = oldscore + (List.sum checkMeetBricks)
-                , money = oldmoney + (List.sum checkMeetBricks)
+                , score = oldscore + List.sum checkMeetBricks
+                , money = oldmoney + List.sum checkMeetBricks
               }
             , cmd
             )
@@ -480,15 +504,19 @@ keyPress i =
             KeyPress Right
 
         32 ->
+            --Space
             Game Continue
 
-        97 ->
+        81 ->
+            --Q
             Buy1
 
-        98 ->
+        69 ->
+            --E
             Buy2
 
-        99 ->
+        82 ->
+            --R
             Buy3
 
         83 ->

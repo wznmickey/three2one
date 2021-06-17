@@ -1,7 +1,7 @@
 module Global exposing (..)
 
 wholeHeight =
-    350
+    400
 
 
 wholeWidth =
