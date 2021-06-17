@@ -38,9 +38,9 @@ initPaddle a (x,y) c d =
   { shape = [ (Rectangle a (x,y) c d), (Rectangle a (x+400,y) c d) ] , speed = 1 }
 
 
-seePaddle : Paddle -> List (Svg Msg)
-seePaddle a =
-    List.map (\therec->viewPaddle therec) a.shape 
+viewPaddle : Paddle -> List (Svg Msg)
+viewPaddle a =
+    List.map (\therec->viewRectangle therec) a.shape 
     
 checkViewable : (Float,Float) -> Bool
 checkViewable (x,y) =
@@ -118,12 +118,6 @@ movePaddle p d =
     else
          { p | shape = List.map (\here->moveRectangle here (dir2Float d) p.speed)  p.shape }
 
-
-
-
-
 rec : Rectangle
 rec =
     { color = { red=1,blue=2,green=3}, leftTopPosition = (1,1) , width = 1 , height = 2 }
-
-

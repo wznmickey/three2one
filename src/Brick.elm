@@ -77,12 +77,6 @@ setLine i s =
     in
     ( { location = i, speed = nspeed, dir = ndir }, s2 )
 
-
-mapsize : ( Int, Int )
-mapsize =
-    ( 10, 5 )
-
-
 viewBrick : Brick -> Svg Msg
 viewBrick brick =
     Svg.rect

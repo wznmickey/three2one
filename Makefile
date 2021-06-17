@@ -1,1 +1,2 @@
-elm make src/Main.elm
+all:
+	elm make src/Main.elm

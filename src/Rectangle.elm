@@ -16,9 +16,9 @@ type alias Rectangle =
     }
 
 
-viewRectangle : Rectangle -> List (Svg Msg)
+viewRectangle : Rectangle -> Svg Msg
 viewRectangle a =
-    [ Svg.rect
+    Svg.rect
         [ SvgAttr.width (String.fromFloat a.width ++ "px")
         , SvgAttr.height (String.fromFloat a.height ++ "px")
         , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition) ++ "px")
@@ -27,20 +27,7 @@ viewRectangle a =
         
         ]
         []
-    ]
-
-viewPaddle : Rectangle -> Svg Msg
-viewPaddle a =
-    Svg.rect
-        [ SvgAttr.width (String.fromFloat a.width ++ "px")
-        , SvgAttr.height (String.fromFloat a.height ++ "px")
-        , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition) ++ "px")
-        , SvgAttr.y (String.fromFloat (Tuple.second a.leftTopPosition) ++ "px")
-        , SvgAttr.fill (getcolor a.color)
-        ]
-        []
-
-
+    
 
 
 -- Rectangle -> Angle -> Length -> Rectangle

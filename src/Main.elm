@@ -101,7 +101,7 @@ view model =
             [ SvgAttr.width (fromInt wholeWidth)
             , SvgAttr.height (fromInt wholeHeight)
             ]
-            (viewBrickList model.brick ++ viewBall model.ball ++ seePaddle model.paddle)
+            (viewBrickList model.brick ++ viewBall model.ball ++ viewPaddle model.paddle)
         , p [ HtmlAttr.hidden (not (checkPause model)) ] [ text "Press space to continue" ]
         , renderInfo model model.score
         , renderScore model
