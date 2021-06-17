@@ -1,4 +1,4 @@
-module Color exposing (Color,getcolor)
+module Color exposing (..)
 
 import String exposing (fromInt)
 
