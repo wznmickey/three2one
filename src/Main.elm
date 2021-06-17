@@ -86,7 +86,7 @@ initModel s status =
             0
 
         money =
-            0
+            10
     in
     Model status brick paddle brickSize ball size key_Press gameStatus seed life score money
 
@@ -390,8 +390,6 @@ checkBallMeet msg ( model, cmd ) =
                 oldscore =
                     model.score
 
-                oldbricks =
-                    List.length model.brick
 
                 newbricks =
                     List.map
@@ -406,7 +404,8 @@ checkBallMeet msg ( model, cmd ) =
                                     { a | show = "hidden" }
                         )
                         model.brick
-
+                checkMeetBricks =
+                    List.map2 (\a b -> if (a.show==b.show) then 0 else 1) newbricks model.brick
                 nowball1 =
                     (model.ball |> ballRotate) (checkBallBrickMeet model.ball model.brick)
 
@@ -436,8 +435,8 @@ checkBallMeet msg ( model, cmd ) =
                 , brick = newbricks
                 , gameLife = nl
                 , gameStatus = ngameStatus
-                , score = oldscore + oldbricks - List.length newbricks
-                , money = oldmoney + oldbricks - List.length newbricks
+                , score = oldscore + (List.sum checkMeetBricks)
+                , money = oldmoney + (List.sum checkMeetBricks)
               }
             , cmd
             )
