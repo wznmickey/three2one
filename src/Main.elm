@@ -9,6 +9,7 @@ import Color exposing (..)
 import Debug exposing (toString)
 import Dir exposing (..)
 import For exposing (..)
+import Global exposing (..)
 import Html exposing (..)
 import Html.Attributes as HtmlAttr exposing (..)
 import Html.Events exposing (keyCode)
@@ -23,9 +24,6 @@ import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Task exposing (..)
 import Time exposing (..)
-import Global exposing(..)
-
-
 
 
 type ModelStatus
@@ -42,23 +40,15 @@ type alias Model =
     , size : ( Float, Float )
     , keyPress : Dir
     , gameStatus : GameStatus
-<<<<<<< HEAD
-    , gamelife : Int
+    , seed : Seed
+    , gameLife : Int
     , score : Int
     , money : Int
     }
 
 
-initModel : Model
-initModel =
-    Model (initBricks 10 10) (initPaddle (Color 101 101 101) ( 175, 300 ) 80 5) ( 10, 10 ) initBall ( wholeWidth, wholeHeight ) NoDir Play 1 0 1
-=======
-    , seed : Seed
-    }
-
-
-initModel : Seed -> ModelStatus-> Model
-initModel s status  =
+initModel : Seed -> ModelStatus -> Model
+initModel s status =
     let
         ( brick, newSeed1 ) =
             initBricks 5 20 s
@@ -74,24 +64,36 @@ initModel s status  =
 
         size =
             ( wholeWidth, wholeHeight )
-        
-        key_Press = --avoid name conflict with function `keyPress`
+
+        key_Press =
+            --avoid name conflict with function `keyPress`
             NoDir
 
         gameStatus =
-            if (status==Inited) then Play
-            else Pause
+            if status == Inited then
+                Play
+
+            else
+                Pause
 
         seed =
             newSeed1
+
+        life =
+            1
+
+        score =
+            0
+
+        money =
+            0
     in
-    Model status brick paddle brickSize ball size key_Press gameStatus seed
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
+    Model status brick paddle brickSize ball size key_Press gameStatus seed life score money
 
 
 init : () -> ( Model, Cmd Msg )
 init a =
-    ( initModel (initialSeed 0) Uninited , Cmd.batch [ perform GetTime now , Cmd.map (\_ -> Init) Cmd.none ] )
+    ( initModel (initialSeed 0) Uninited, Cmd.batch [ perform GetTime now, Cmd.map (\_ -> Init) Cmd.none ] )
 
 
 view : Model -> Html Msg
@@ -109,20 +111,17 @@ view model =
             ]
             (viewBrickList model.brick ++ viewBall model.ball ++ seePaddle model.paddle)
         , p [ HtmlAttr.hidden (not (checkPause model)) ] [ text "Press space to continue" ]
-<<<<<<< HEAD
-        , renderInfo model model.score 
+        , renderInfo model model.score
         , renderScore model
-=======
-        
-     --]--(if model.modelStatus==Inited then "1" else "2") ]
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
+        , p [] [ text (toString model.ball.speed) ]
         ]
+
 
 renderInfo : Model -> Int -> Html Msg
 renderInfo mod score =
     div
         -- [ style "background" "rgba(245,212,217, 0.7)"
-        [  style "color" "pink"
+        [ style "color" "pink"
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "50px"
         , style "font-weight" "bold"
@@ -133,20 +132,21 @@ renderInfo mod score =
         , style "width" "400px"
         , style "height" "400px"
         , style "display"
-            (
-             if mod.gamelife == 0 then
+            (if mod.gameLife == 0 then
                 "block"
-             else "none"
+
+             else
+                "none"
             )
         ]
-        [ 
-            text ("Died! Score is " ++ (toString(score)))
+        [ text ("Died! Score is " ++ toString score)
         ]
+
+
 renderScore : Model -> Html Msg
-renderScore mod  =
+renderScore mod =
     div
-       
-        [  style "color" "pink"
+        [ style "color" "pink"
         , style "font-family" "Helvetica, Arial, sans-serif"
         , style "font-size" "10px"
         , style "font-weight" "bold"
@@ -157,15 +157,16 @@ renderScore mod  =
         , style "width" "400px"
         , style "height" "400px"
         , style "display"
-            (
-             if mod.gamelife /= 0 then
+            (if mod.gameLife /= 0 then
                 "block"
-             else "none"
+
+             else
+                "none"
             )
         ]
-        [ 
-            text ("Score: " ++ (toString(mod.score)) ++ " Money: " ++ (toString(mod.money)))
+        [ text ("Score: " ++ toString mod.score ++ " Money: " ++ toString mod.money)
         ]
+
 
 checkPause : Model -> Bool
 checkPause a =
@@ -174,11 +175,13 @@ checkPause a =
 
     else if a.gameStatus == WaitToContinue then
         True
-    -- else if a.gamelife == 0 then
-    --     True
-    
+        -- else if a.gamelife == 0 then
+        --     True
+
     else
         False
+
+
 
 -- checkDead : Model -> Bool
 -- checkDead a =
@@ -186,58 +189,71 @@ checkPause a =
 --         True
 --     else False
 
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-<<<<<<< HEAD
-    ( model |> checkBuy msg, Cmd.none )
-=======
     ( model, Cmd.none )
+        |> checkBuy msg
         |> checkInit msg
         |> timeGet msg
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
         |> checkStatus msg
         |> gameRunUpdate msg
-        
 
-checkBuy : Msg -> Model ->  Model
-checkBuy msg model = 
-    case msg of 
-        Buy1->
-            checkBuy1 model
-        Buy2->
-            checkBuy2 model
-        Buy3->
-            checkBuy3 model
+
+checkBuy : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+checkBuy msg ( model, cmd ) =
+    case msg of
+        Buy1 ->
+            ( checkBuy1 model, cmd )
+
+        Buy2 ->
+            ( checkBuy2 model, cmd )
+
+        Buy3 ->
+            ( checkBuy3 model, cmd )
+
         _ ->
-             model
+            ( model, cmd )
+
 
 checkBuy1 : Model -> Model
-checkBuy1 model = 
+checkBuy1 model =
     model
+
 
 checkBuy2 : Model -> Model
 checkBuy2 model =
-    let 
-      oldwidth = (firstPaddle model.paddle).width
-      oldmoney = model.money
-      olddpad = model.paddle
+    let
+        oldwidth =
+            (firstPaddle model.paddle).width
+
+        oldmoney =
+            model.money
+
+        olddpad =
+            model.paddle
     in
-    if  model.money >= 1  then
-        {model | money = oldmoney - 1 , paddle = { olddpad | shape = List.map (\theserec -> {theserec| width = oldwidth + 20} ) olddpad.shape } }
-    else model 
+    if model.money >= 1 then
+        { model | money = oldmoney - 1, paddle = { olddpad | shape = List.map (\theserec -> { theserec | width = oldwidth + 20 }) olddpad.shape } }
+
+    else
+        model
+
 
 checkBuy3 : Model -> Model
 checkBuy3 model =
     model
+
 
 checkInit : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkInit msg ( model, cmd ) =
     case msg of
         Init ->
             ( initModel model.seed Inited, cmd )
-        Game Play -> 
+
+        Game Play ->
             ( initModel model.seed Inited, cmd )
-      
+
         _ ->
             ( model, cmd )
 
@@ -261,23 +277,23 @@ gameRunUpdate msg ( model, cmd ) =
                 |> updateBall msg
                 |> checkBallMeet msg
                 |> updatePaddle msg
-<<<<<<< HEAD
                 -- |> checkPosition msg
-=======
-                |> checkPosition msg
+                --|> checkPosition msg
                 |> updateBrick msg
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
 
         _ ->
             ( model, cmd )
+
 
 updateBrick : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-updateBrick  msg ( model, cmd ) =
-     case msg of
+updateBrick msg ( model, cmd ) =
+    case msg of
         Tick time ->
             ( { model | brick = updateBricks model.brick }, cmd )
+
         _ ->
             ( model, cmd )
+
 
 checkStatus : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkStatus msg ( model, cmd ) =
@@ -303,12 +319,12 @@ checkStatus msg ( model, cmd ) =
             ( model, cmd )
 
 
+
 -- checkPosition : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 -- checkPosition msg ( model, cmd ) =
 --     case msg of
 --         Tick time ->
 --             ( { model | paddle = checkPaddlePosition model.paddle model.size }, cmd )
-
 --         _ ->
 --             ( model, cmd )
 
@@ -321,8 +337,13 @@ updateBall msg ( model, cmd ) =
 
         BallMeet dir ->
             ( { model | ball = ballRotate model.ball dir }, cmd )
+
         KeyPress Up ->
-            ({model| ball = ballSpeedUp model.ball},cmd)
+            ( { model | ball = ballSpeedUp model.ball }, cmd )
+        
+        KeyPress Down ->
+            ({model|ball=ballSpeedDown model.ball},cmd)
+
         _ ->
             ( model, cmd )
 
@@ -341,7 +362,7 @@ updateKey : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updateKey msg ( model, cmd ) =
     case msg of
         KeyPress x ->
-            if x /= Left && x/=Right then
+            if x /= Left && x /= Right then
                 ( model, cmd )
 
             else
@@ -362,61 +383,61 @@ checkBallMeet : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkBallMeet msg ( model, cmd ) =
     case msg of
         Tick time ->
-<<<<<<< HEAD
-            let 
-                oldmoney = model.money
-                oldscore = model.score
-                oldbricks = List.length model.brick
-                newbricks = 
-                    List.filter
-=======
             let
-                nowball1 =
-                    (model.ball |> ballRotate) (checkBallBrickMeet model.ball model.brick)
+                oldmoney =
+                    model.money
 
-                nowball2 =
-                    (nowball1 |> ballRotate) (checkBallPaddleMeet nowball1 model.paddle)
+                oldscore =
+                    model.score
 
-                nowball3 =
-                    (nowball2 |> ballRotate) (checkBallBorderMeet nowball2 model.size)
-            in
-            ( { model
-                | ball = nowball3
-                , brick =
+                oldbricks =
+                    List.length model.brick
+
+                newbricks =
                     List.map
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
                         (\a ->
                             case deleteBrick nowball3.shape a of
                                 Nothing ->
-                                        a
-                                    --{a|show="hidden"}
+                                    a
 
+                                --{a|show="hidden"}
                                 Just ( c, d ) ->
                                     --a
-                                    {a|show="hidden"}
+                                    { a | show = "hidden" }
                         )
                         model.brick
+
                 nowball1 =
                     (model.ball |> ballRotate) (checkBallBrickMeet model.ball model.brick)
 
                 nowball11 =
                     (nowball1 |> ballRotate) (checkBallPaddle1Meet nowball1 model.paddle)
 
-                nowball2=
+                nowball2 =
                     (nowball11 |> ballRotate) (checkBallPaddle2Meet nowball11 model.paddle)
-                nowball3 =
-                    (nowball2 |> ballRotate) (Tuple.second (checkBallBorderMeet nowball2 model.size) )
-                
-                nowball4 =
-                    (Tuple.first (checkBallBorderMeet nowball3 model.size) )
+
+                ( nowball3, dl,dir ) =
+                    checkBallBorderMeet nowball2 model.size
+                nowball4
+                    =(nowball3 |> ballRotate) dir
+
+                nl =
+                    model.gameLife + dl
+
+                ngameStatus =
+                    if nl <= 0 then
+                        Stop
+
+                    else
+                        model.gameStatus
             in
             ( { model
                 | ball = nowball4
-                , brick =
-                    newbricks
-                 ,gamelife = nowball4.life
-                 ,score = oldscore + oldbricks - (List.length newbricks)
-                 ,money = oldmoney + oldbricks - (List.length newbricks)
+                , brick = newbricks
+                , gameLife = nl
+                , gameStatus = ngameStatus
+                , score = oldscore + oldbricks - List.length newbricks
+                , money = oldmoney + oldbricks - List.length newbricks
               }
             , cmd
             )
@@ -451,7 +472,7 @@ keyPress i =
             KeyPress Up
 
         40 ->
-            KeyPress Down 
+            KeyPress Down
 
         37 ->
             KeyPress Left
@@ -460,26 +481,19 @@ keyPress i =
             KeyPress Right
 
         32 ->
-<<<<<<< HEAD
-            Continue
-        
-        97->
-            Buy1
-        
-        98->
-            Buy2
-
-        99->
-            Buy3
-=======
             Game Continue
 
-        83 -> 
-            Game Play
+        97 ->
+            Buy1
 
-        38 -> 
-            KeyPress Up
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
+        98 ->
+            Buy2
+
+        99 ->
+            Buy3
+
+        83 ->
+            Game Play
 
         _ ->
             KeyPress NoDir
@@ -493,13 +507,12 @@ keyRelease i =
 
         39 ->
             KeyRelease Right
-        
+
         38 ->
             KeyPress Up
 
         40 ->
-            KeyPress Down 
+            KeyPress Down
 
         _ ->
             KeyRelease NoDir
-

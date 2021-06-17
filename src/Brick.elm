@@ -35,7 +35,7 @@ bricksizeY =
 
 setBricks : { location : Int, speed : Float, dir : Dir } -> Int -> List Brick -> ( List Brick, { location : Int, speed : Float, dir : Dir } )
 setBricks a b l =
-    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat b * bricksizeX, toFloat a.location* bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
+    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat b * bricksizeX, (toFloat a.location+2)* bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
 
 
 initBricks : Int -> Int -> Seed -> ( List Brick, Seed )
@@ -91,12 +91,9 @@ viewBrick brick =
         , SvgAttr.x (toString (Tuple.first brick.shape.leftTopPosition))
         , SvgAttr.y (toString (Tuple.second brick.shape.leftTopPosition))
         , SvgAttr.fill (getcolor brick.shape.color)
-<<<<<<< HEAD
         , SvgAttr.stroke "pink"
-=======
-        , SvgAttr.stroke "black"
         , SvgAttr.visibility brick.show
->>>>>>> 275108592250cd55ff54a3d6d6a5403b3632327e
+        
         ]
         []
 

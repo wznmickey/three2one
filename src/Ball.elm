@@ -10,15 +10,13 @@ import Svg.Attributes exposing (limitingConeAngle)
 
 type alias Ball =
     { shape : Circle
-    , angle : Float
     , speed : (Float,Float)
-    , life : Int
     }
 
 
 initBall : Ball
 initBall =
-    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) (0.1 , 0.1) 1
+    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) (0.1 , 0.1)
 
 
 
@@ -45,25 +43,29 @@ ballRotate ball dir =
             let 
                 (x,y)=ball.speed
                 angle = atan2 y x
-                speed = sqrt ((x*x)+(y*y))
                 nangle =
+                    if (angle<0) then angle+360
+                    else if (angle>360) then angle-360
+                    else angle
+                speed = sqrt ((x*x)+(y*y))
+                nnangle =
                     case dir of
                         Down ->
-                            360 - angle
+                            360 - nangle
 
                         Up ->
-                            360 - angle 
+                            360 - nangle 
 
                         Left ->
-                            180 - angle 
+                            180 - nangle 
 
                         Right ->
-                            180 - angle 
+                            180 - nangle 
                         _ ->
-                            angle
+                            nangle
                         
-                nx=(cos nangle) * speed 
-                ny=(sin nangle) * speed
+                nx=(cos nnangle) * speed 
+                ny=(sin nnangle) * speed
             in 
             {ball|speed=(nx,ny)}
 
@@ -73,3 +75,10 @@ ballSpeedUp ball =
         (x,y) = ball.speed
     in
     {ball|speed=(x,y+0.01)}
+
+ballSpeedDown : Ball -> Ball
+ballSpeedDown ball =
+    let 
+        (x,y) = ball.speed
+    in
+    {ball|speed=(x,y-0.01)}
