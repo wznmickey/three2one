@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [1.0.0] June 18,2021
+
+See `../doc` for details
+
 ## [0.0.4] June 9 ,2021
 
 ### Added

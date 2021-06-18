@@ -9,12 +9,13 @@ Developed by Three 2 One @ SliverFocs.
 - Module `For` for future developing.
 - Good Model organization.
 - Good file organization.
-- Low delay and continuous of object moving.
+- Low delay and continuous of paddle moving.
 
 ### Viewing
 
 - Beautiful drawings.
 - Auto pause.
+- Fun playing. (See detail in `../doc`)
 
 ## About us
 
