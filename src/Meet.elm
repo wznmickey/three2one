@@ -6,8 +6,7 @@ import Circle exposing (..)
 import Dir exposing (..)
 import Paddle exposing (..)
 import Rectangle exposing (..)
-
-
+import Global exposing(..)
 
 
 checkBallBrickMeet : Ball -> List Brick -> Dir
@@ -40,6 +39,7 @@ checkBallSingleBrickMeet ball brick =
 checkBallPaddle1Meet : Ball -> Paddle -> Dir
 checkBallPaddle1Meet ball paddle =
     checkCircleRectangle ball.shape (firstPaddle paddle)
+
 
 checkBallPaddle2Meet : Ball -> Paddle -> Dir
 checkBallPaddle2Meet ball paddle =
@@ -85,22 +85,23 @@ deleteBrick circle brick =
         Nothing
 
 
-checkBallBorderMeet : Ball -> (Float,Float) -> (Ball,Int,Dir)
-checkBallBorderMeet ball (x,y) =
+checkBallBorderMeet : Ball -> ( Float, Float ) -> ( Ball, Int )
+checkBallBorderMeet ball ( x, y ) =
     let
         r =
             ball.shape.r
     in
     if Tuple.first ball.shape.position <= r then
-       ({ ball | shape = { r = ball.shape.r , color = ball.shape.color , position = ( Tuple.first ball.shape.position + 400 - r , Tuple.second ball.shape.position  ) } },0,NoDir)
-    
+        ( { ball | shape = { r = ball.shape.r, color = ball.shape.color, position = ( Tuple.first ball.shape.position + wholeWidth - r, Tuple.second ball.shape.position ) } }, 0 )
+
     else if Tuple.first ball.shape.position + r >= x then
-        ({ ball | shape = { r = ball.shape.r , color = ball.shape.color , position = ( Tuple.first ball.shape.position - 400 + r, Tuple.second ball.shape.position  ) } } ,0,NoDir)
+        ( { ball | shape = { r = ball.shape.r, color = ball.shape.color, position = ( Tuple.first ball.shape.position - wholeWidth + r, Tuple.second ball.shape.position ) } }, 0 )
 
     else if Tuple.second ball.shape.position <= r then
-        (ball ,0, Up)
+        ( ball, -1 )
 
     else if Tuple.second ball.shape.position + r >= y then
-        (ball,-1,NoDir)
+        ( ball, -1 )
+
     else
-       (ball,0,NoDir)
+        ( ball, 0 )

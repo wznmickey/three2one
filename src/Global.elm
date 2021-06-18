@@ -1,11 +1,11 @@
 module Global exposing (..)
 
 wholeHeight =
-    400
+    300
 
 
 wholeWidth =
     400
 
 g =
-    0.0000003
+    0.00004

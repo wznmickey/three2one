@@ -23,12 +23,19 @@ import String exposing (..)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Task exposing (..)
+import Text exposing (..)
 import Time exposing (..)
 
 
 type ModelStatus
-    = Uninited
+    = Uninited Int
     | Inited
+
+
+type Location
+    = OnGround
+    | BelowGround
+    | NoLocation
 
 
 type alias Model =
@@ -42,6 +49,7 @@ type alias Model =
     , seed : Seed
     , score : Int
     , money : Int
+    , text : ( String, Location )
     }
 
 
@@ -49,10 +57,10 @@ initModel : Seed -> ModelStatus -> Model
 initModel s status =
     let
         ( brick, newSeed1 ) =
-            initBricks 5 20 s
+            initBricks 5 10 s
 
         paddle =
-            initPaddle (Color 101 101 101) ( 175, 300 ) 80 5
+            initPaddle (Color 101 101 101) ( 175, 275 ) 80 5
 
         ball =
             initBall
@@ -79,35 +87,70 @@ initModel s status =
 
         money =
             10
+
+        text =
+            ( "", NoLocation )
     in
-    Model status brick paddle ball size key_Press gameStatus seed score money
+    Model status brick paddle ball size key_Press gameStatus seed score money text
 
 
 init : () -> ( Model, Cmd Msg )
 init a =
-    ( initModel (initialSeed 0) Uninited, Cmd.batch [ perform GetTime now, Cmd.map (\_ -> Init) Cmd.none ] )
+    ( initModel (initialSeed 0) (Uninited 1), Cmd.batch [ perform GetTime now, Cmd.map (\_ -> Init) Cmd.none ] )
 
 
 view : Model -> Html Msg
 view model =
     div
-        [ HtmlAttr.style "width" (fromInt wholeWidth)
-        , HtmlAttr.style "height" (fromInt wholeHeight)
-        , HtmlAttr.style "left" "0"
+        [ HtmlAttr.style "left" "0"
         , HtmlAttr.style "top" "0"
         , HtmlAttr.style "text-align" "center"
+        , HtmlAttr.style "background" "black"
+        , HtmlAttr.style "width" "100vw"
+        , HtmlAttr.style "height" "100vh"
         ]
-        [ Svg.svg
+        [ div
+            [ HtmlAttr.style "width" (toString wholeWidth ++ "px")
+            , HtmlAttr.style "border-width" "5px"
+            , HtmlAttr.style "position" "absolute"
+            , HtmlAttr.style "left" "50%"
+            , HtmlAttr.style "transform" "translate(-50%,-50%)"
+            , HtmlAttr.style "top" "40%"
+            , HtmlAttr.style "border-style" "solid"
+            , HtmlAttr.style "border-color" "pink"
+            ]
+            [ checkShowGame model ]
+        , div
+            [ HtmlAttr.style "position" "absolute"
+            , HtmlAttr.style "left" "50%"
+            , HtmlAttr.style "transform" "translate(-50%,-50%)"
+            , HtmlAttr.style "top" "70%"
+            ]
+            [ p [ HtmlAttr.hidden (not (checkPause model)), HtmlAttr.style "color" "pink" ] [ text "Press Space to continue" ]
+            , p [ HtmlAttr.hidden (not (checkWaitS model)), HtmlAttr.style "color" "pink" ] [ text "Press S to start" ]
+            , renderInfo model model.score
+            , renderScore model
+            , renderProperty model
+            ]
+        ]
+
+
+checkShowGame : Model -> Html Msg
+checkShowGame model =
+    let
+        ( t, k ) =
+            model.text
+    in
+    if k == OnGround then
+        p [ HtmlAttr.style "color" "pink", HtmlAttr.style "white-space" "pre-line", HtmlAttr.style "font-size" "small" ] [ text (Tuple.first model.text) ]
+
+    else
+        Svg.svg
             [ SvgAttr.width (fromInt wholeWidth)
             , SvgAttr.height (fromInt wholeHeight)
+            , SvgAttr.stroke "pink"
             ]
             (viewBrickList model.brick ++ viewBall model.ball ++ viewPaddle model.paddle)
-        , p [ HtmlAttr.hidden (not (checkPause model)) ] [ text "Press space to continue" ]
-        , renderInfo model model.score
-        , renderScore model
-        , renderproperty model
-        , p [] [ text (toString model.ball.speed) ]
-        ]
 
 
 renderInfo : Model -> Int -> Html Msg
@@ -143,8 +186,8 @@ renderScore mod =
         ]
 
 
-renderproperty : Model -> Html Msg
-renderproperty mod =
+renderProperty : Model -> Html Msg
+renderProperty mod =
     div
         [ style "color" "pink"
         , style "display"
@@ -161,39 +204,69 @@ renderproperty mod =
 
 checkPause : Model -> Bool
 checkPause a =
-    if a.gameStatus == Pause then
+    let
+        ( t, k ) =
+            a.text
+    in
+    if t == "" && k == OnGround then
+        False
+
+    else if a.gameStatus == Pause then
         True
 
     else if a.gameStatus == WaitToContinue then
         True
-        -- else if a.gamelife == 0 then
-        --     True
 
     else
         False
 
 
+checkWaitS : Model -> Bool
+checkWaitS model =
+    let
+        ( t, k ) =
+            model.text
+    in
+    if t == "" && k == OnGround then
+        True
 
--- checkDead : Model -> Bool
--- checkDead a =
---     if a.gamelife == 0 then
---         True
---     else False
--- checkDead : Model -> Bool
--- checkDead a =
---     if a.gamelife == 0 then
---         True
---     else False
+    else
+        False
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     ( model, Cmd.none )
         |> checkBuy msg
+        |> showText msg
         |> checkInit msg
         |> timeGet msg
         |> checkStatus msg
         |> gameRunUpdate msg
+
+
+showText : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+showText msg ( model, cmd ) =
+    let
+        ntext =
+            case model.modelStatus of
+                Uninited x ->
+
+                        getText (Game (Story x))
+
+
+                _ ->
+                    ""
+
+        nlocation =
+            case model.modelStatus of
+                Uninited x ->
+                    OnGround
+
+                _ ->
+                    NoLocation
+    in
+    ( { model | text = ( ntext, nlocation ) }, cmd )
 
 
 checkBuy1 : Model -> Model
@@ -234,22 +307,14 @@ checkBuy2 model =
         model
 
 
-checkBuy3 : Model -> Model
-checkBuy3 model =
-    model
-
-
 checkBuy : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkBuy msg ( model, cmd ) =
     case msg of
-        Buy1 ->
+        Buy 1 ->
             ( checkBuy1 model, cmd )
 
-        Buy2 ->
+        Buy 2 ->
             ( checkBuy2 model, cmd )
-
-        Buy3 ->
-            ( checkBuy3 model, cmd )
 
         _ ->
             ( model, cmd )
@@ -287,8 +352,6 @@ gameRunUpdate msg ( model, cmd ) =
                 |> updateBall msg
                 |> checkBallMeet msg
                 |> updatePaddle msg
-                -- |> checkPosition msg
-                --|> checkPosition msg
                 |> updateBrick msg
 
         _ ->
@@ -319,24 +382,19 @@ checkStatus msg ( model, cmd ) =
                 ( model, cmd )
 
         Game Continue ->
-            if model.gameStatus == WaitToContinue then
-                ( { model | gameStatus = Play }, cmd )
+            case model.modelStatus of
+                Uninited x ->
+                    ( { model | modelStatus = Uninited (x + 1) }, cmd )
 
-            else
-                ( model, cmd )
+                _ ->
+                    if model.gameStatus == WaitToContinue then
+                        ( { model | gameStatus = Play }, cmd )
+
+                    else
+                        ( model, cmd )
 
         _ ->
             ( model, cmd )
-
-
-
--- checkPosition : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
--- checkPosition msg ( model, cmd ) =
---     case msg of
---         Tick time ->
---             ( { model | paddle = checkPaddlePosition model.paddle model.size }, cmd )
---         _ ->
---             ( model, cmd )
 
 
 updateBall : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -349,10 +407,10 @@ updateBall msg ( model, cmd ) =
             ( { model | ball = ballRotate model.ball dir }, cmd )
 
         KeyPress Up ->
-            ( { model | ball = ballSpeedUp model.ball }, cmd )
+            ( { model | ball = ballSpeedUp model.ball, money = model.money - 1 }, cmd )
 
         KeyPress Down ->
-            ( { model | ball = ballSpeedDown model.ball }, cmd )
+            ( { model | ball = ballSpeedDown model.ball, money = model.money - 1 }, cmd )
 
         _ ->
             ( model, cmd )
@@ -430,7 +488,7 @@ checkBallMeet msg ( model, cmd ) =
                         model.brick
 
                 nowball1 =
-                    (model.ball |> ballRotate) (checkBallBrickMeet model.ball model.brick)
+                    (model.ball |> ballRotateWithBrick) (checkBallBrickMeet model.ball model.brick)
 
                 nowball11 =
                     (nowball1 |> ballRotate) (checkBallPaddle1Meet nowball1 model.paddle)
@@ -438,15 +496,25 @@ checkBallMeet msg ( model, cmd ) =
                 nowball2 =
                     (nowball11 |> ballRotate) (checkBallPaddle2Meet nowball11 model.paddle)
 
-                ( nowball3, dl, dir ) =
+                ( nowball3, ds ) =
                     checkBallBorderMeet nowball2 model.size
 
-                nowball4 =
-                    (nowball3 |> ballRotate) dir
+                dm =
+                    if ds == -1 then
+                        -200
 
+                    else
+                        0
+
+                nowball4 =
+                    if ds == 0 then
+                        nowball3
+
+                    else
+                        { nowball3 | shape = backBall nowball3.shape model.paddle, speed = ( 0.15, 0.15 ) }
 
                 ngameStatus =
-                    if oldmoney + List.sum checkMeetBricks <=1  then
+                    if oldmoney + List.sum checkMeetBricks * 5 + dm <= 1 then
                         Stop
 
                     else
@@ -457,7 +525,7 @@ checkBallMeet msg ( model, cmd ) =
                 , brick = newbricks
                 , gameStatus = ngameStatus
                 , score = oldscore + List.sum checkMeetBricks
-                , money = oldmoney + List.sum checkMeetBricks
+                , money = oldmoney + List.sum checkMeetBricks * 5 + dm
               }
             , cmd
             )
@@ -506,17 +574,14 @@ keyPress i =
 
         81 ->
             --Q
-            Buy1
+            Buy 1
 
         69 ->
             --E
-            Buy2
-
-        82 ->
-            --R
-            Buy3
+            Buy 2
 
         83 ->
+            --S
             Game Play
 
         _ ->

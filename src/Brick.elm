@@ -35,7 +35,7 @@ bricksizeY =
 
 setBricks : { location : Int, speed : Float, dir : Dir } -> Int -> List Brick -> ( List Brick, { location : Int, speed : Float, dir : Dir } )
 setBricks a b l =
-    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat b * bricksizeX, (toFloat a.location+2)* bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
+    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat (b*2) * bricksizeX, (toFloat a.location+2)* bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
 
 
 initBricks : Int -> Int -> Seed -> ( List Brick, Seed )

@@ -10,6 +10,8 @@ type GameStatus
     | Stop
     | WaitToContinue
     | Continue
+    | Story Int
+    | Skill Int
 
 type Msg
     = BallMeet Dir
@@ -19,9 +21,7 @@ type Msg
     | KeyRelease Dir
     | OnView Visibility
     | Checklife
-    | Buy1
-    | Buy2
-    | Buy3
+    | Buy Int
     | Game GameStatus
     | GetTime Posix
     | Init 

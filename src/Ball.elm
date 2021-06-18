@@ -1,23 +1,23 @@
 module Ball exposing (..)
 
-import Dir exposing (..)
 import Circle exposing (..)
 import Color exposing (..)
+import Dir exposing (..)
+import Global exposing (..)
 import Msg exposing (..)
 import Svg exposing (Svg)
-import Global exposing(..)
 import Svg.Attributes exposing (limitingConeAngle)
+import Paddle exposing (..)
 
 type alias Ball =
     { shape : Circle
-    , speed : (Float,Float)
+    , speed : ( Float, Float )
     }
 
 
 initBall : Ball
 initBall =
-    Ball (initCircle (Color 255 101 101) ( 200, 296 ) 4) (0.1 , 0.1)
-
+    Ball (initCircle (Color 255 101 101) ( 200, 271 ) 4) ( 0.15, 0.15 )
 
 
 viewBall : Ball -> List (Svg Msg)
@@ -27,58 +27,130 @@ viewBall a =
 
 ballRun : Ball -> Float -> Ball
 ballRun ball time =
-    let 
-        (x,y)=ball.speed
-        vy =  y- (time) * g 
+    let
+        ( x, y ) =
+            ball.speed
+
+        vy =
+            y - time * g
     in
-    { ball | shape = moveCircle ball.shape (x,vy) time , speed=(x,vy)}
+    { ball | shape = moveCircle ball.shape ( x, vy ) time, speed = ( x, vy ) }
+
+
+ballRotateWithBrick : Ball -> Dir -> Ball
+ballRotateWithBrick ball dir =
+    let
+        ( x, y ) =
+            ball.speed
+
+        angle =
+            atan2 y x
+
+        nangle =
+            if angle < 0 then
+                angle + 360
+
+            else if angle > 360 then
+                angle - 360
+
+            else
+                angle
+
+        speed =
+            sqrt ((x * x) + (y * y))
+
+        nspeed =
+            max (speed * 0.8) (min 0.1 speed)
+    in
+    case dir of
+        NoDir ->
+            ball
+
+        Up ->
+            { ball | speed = ( cos nangle * nspeed, sin nangle * nspeed ) }
+
+        Down ->
+            { ball | speed = ( cos (360 - nangle) * nspeed, sin (360 - nangle) * nspeed ) }
+
+        Left ->
+            { ball | speed = ( -(abs (cos (180 - nangle) * nspeed)), sin (180 - nangle) * nspeed ) }
+
+        Right ->
+            { ball | speed = ( (abs (cos (180 - nangle) * nspeed)), sin (180 - nangle) * nspeed ) }
 
 
 ballRotate : Ball -> Dir -> Ball
 ballRotate ball dir =
-    case dir of 
-        NoDir -> 
+    case dir of
+        NoDir ->
             ball
-        _ -> 
-            let 
-                (x,y)=ball.speed
-                angle = atan2 y x
+
+        _ ->
+            let
+                ( x, y ) =
+                    ball.speed
+
+                angle =
+                    atan2 y x
+
                 nangle =
-                    if (angle<0) then angle+360
-                    else if (angle>360) then angle-360
-                    else angle
-                speed = sqrt ((x*x)+(y*y))
+                    if angle < 0 then
+                        angle + 360
+
+                    else if angle > 360 then
+                        angle - 360
+
+                    else
+                        angle
+
+                speed =
+                    sqrt ((x * x) + (y * y))
+
                 nnangle =
                     case dir of
                         Down ->
                             360 - nangle
 
                         Up ->
-                            360 - nangle 
+                            360 - nangle
 
                         Left ->
-                            180 - nangle 
+                            180 - nangle
 
                         Right ->
-                            180 - nangle 
+                            180 - nangle
+
                         _ ->
                             nangle
-                        
-                nx=(cos nnangle) * speed 
-                ny=(sin nnangle) * speed
-            in 
-            {ball|speed=(nx,ny)}
+
+                nx =
+                    cos nnangle * speed
+
+                ny =
+                    sin nnangle * speed
+            in
+            { ball | speed = ( nx, ny ) }
+
 
 ballSpeedUp : Ball -> Ball
 ballSpeedUp ball =
-    let 
-        (x,y) = ball.speed
+    let
+        ( x, y ) =
+            ball.speed
     in
-    {ball|speed=(x,y+0.01)}
+    { ball | speed = ( x, y + 0.01 ) }
+
 
 ballSpeedDown : Ball -> Ball
 ballSpeedDown ball =
-    let 
-        (x,y) = ball.speed
+    let
+        ( x, y ) =
+            ball.speed
     in
-    {ball|speed=(x,y-0.01)}
+    { ball | speed = ( x, y - 0.01 ) }
+
+backBall : Circle -> Paddle -> Circle
+backBall shape paddle =
+    let (x,y)= getPaddleLocation paddle
+    in
+        {shape|position=(x,y+shape.r)}
