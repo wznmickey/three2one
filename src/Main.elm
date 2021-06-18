@@ -259,6 +259,10 @@ checkPause a =
         False
 
 
+
+{--Check whether there need to press S--}
+
+
 checkWaitS : Model -> Bool
 checkWaitS model =
     let
@@ -272,6 +276,10 @@ checkWaitS model =
         False
 
 
+
+{--std update function--}
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     ( model, Cmd.none )
@@ -281,6 +289,10 @@ update msg model =
         |> timeGet msg
         |> checkStatus msg
         |> gameRunUpdate msg
+
+
+
+{--Check what text should be shown--}
 
 
 showText : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -305,6 +317,10 @@ showText msg ( model, cmd ) =
     ( { model | text = ( ntext, nlocation ) }, cmd )
 
 
+
+{--Check whether is buying increasing speed--}
+
+
 checkBuy1 : Model -> Model
 checkBuy1 model =
     let
@@ -322,6 +338,10 @@ checkBuy1 model =
 
     else
         model
+
+
+
+{--Check whether is buying enlarging paddle --}
 
 
 checkBuy2 : Model -> Model
@@ -343,6 +363,10 @@ checkBuy2 model =
         model
 
 
+
+{--Call buy check function--}
+
+
 checkBuy : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkBuy msg ( model, cmd ) =
     if model.money == 1 then
@@ -360,6 +384,10 @@ checkBuy msg ( model, cmd ) =
                 ( model, cmd )
 
 
+
+{--Check whether need to init the game--}
+
+
 checkInit : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkInit msg ( model, cmd ) =
     case msg of
@@ -373,6 +401,10 @@ checkInit msg ( model, cmd ) =
             ( model, cmd )
 
 
+
+{--Get time to set seed--}
+
+
 timeGet : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 timeGet msg ( model, cmd ) =
     case msg of
@@ -381,6 +413,10 @@ timeGet msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+
+{--Call game running related functions--}
 
 
 gameRunUpdate : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -396,6 +432,10 @@ gameRunUpdate msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+
+{--Check whether need to update texts--}
 
 
 updateText : Model -> Model
@@ -417,6 +457,10 @@ updateText model =
         model
 
 
+
+{--Update bricks--}
+
+
 updateBrick : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updateBrick msg ( model, cmd ) =
     case msg of
@@ -425,6 +469,10 @@ updateBrick msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+
+{--Check game status --}
 
 
 checkStatus : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -456,6 +504,10 @@ checkStatus msg ( model, cmd ) =
             ( model, cmd )
 
 
+
+{--Update balls--}
+
+
 updateBall : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updateBall msg ( model, cmd ) =
     case msg of
@@ -475,6 +527,10 @@ updateBall msg ( model, cmd ) =
             ( model, cmd )
 
 
+
+{--Update paddle(s)--}
+
+
 updatePaddle : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 updatePaddle msg ( model, cmd ) =
     case msg of
@@ -483,6 +539,10 @@ updatePaddle msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+
+{--Update the key info--}
 
 
 updateKey : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -507,6 +567,10 @@ updateKey msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+
+{--Check the ball meeting--}
 
 
 checkBallMeet : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -606,6 +670,10 @@ checkBallMeet msg ( model, cmd ) =
             ( model, cmd )
 
 
+
+{--std subscriptions function--}
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
@@ -616,6 +684,10 @@ subscriptions model =
         ]
 
 
+
+{--std main function--}
+
+
 main =
     Browser.element
         { init = init
@@ -623,6 +695,10 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+
+{--Transfer key press msg--}
 
 
 keyPress : Int -> Msg
@@ -658,6 +734,10 @@ keyPress i =
 
         _ ->
             KeyPress NoDir
+
+
+
+{--Transfer key release msg--}
 
 
 keyRelease : Int -> Msg

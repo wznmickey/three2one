@@ -33,7 +33,7 @@ die1 =
 
 
 controlIntr =
-    "← → move spaceship \n $10 'Q' faster spaceship $20 'E' longer spaceship \n ↑  collector's upward acceleration \n ↓ collector's downward acceleration \n $200 New collector "
+    "← → move spaceship \n $10 'Q' faster spaceship \n $20 'E' longer spaceship \n ↑  collector's upward acceleration \n ↓ collector's downward acceleration \n $200 New collector "
 
 
 getText : Msg -> String
