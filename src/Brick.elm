@@ -38,9 +38,17 @@ bricksizeY =
     20
 
 
+
+{--Set single brick--}
+
+
 setBricks : { location : Int, speed : Float, dir : Dir } -> Int -> List Brick -> ( List Brick, { location : Int, speed : Float, dir : Dir } )
 setBricks a b l =
     ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat (b * 2) * bricksizeX, (toFloat a.location + 2) * bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
+
+
+
+{--Set all bricks--}
 
 
 initBricks : Int -> Int -> Seed -> ( List Brick, Seed )
@@ -50,6 +58,10 @@ initBricks a b s =
             for_outer 0 a initBricksLevel ( [], ( s, b ) )
     in
     ( l, ns )
+
+
+
+{--Set one line brick--}
 
 
 initBricksLevel : ( Seed, Int ) -> Int -> List Brick -> ( List Brick, ( Seed, Int ) )
@@ -62,6 +74,10 @@ initBricksLevel ( seed, j ) i l =
             for_outer 0 j setBricks ( l, line )
     in
     ( nl, ( ns, j ) )
+
+
+
+{--Set one line brick info--}
 
 
 setLine : Int -> Seed -> ( { location : Int, speed : Float, dir : Dir }, Seed )
@@ -83,6 +99,10 @@ setLine i s =
     ( { location = i, speed = nspeed, dir = ndir }, s2 )
 
 
+
+{--Give brick showing code--}
+
+
 viewBrick : Brick -> Svg Msg
 viewBrick brick =
     Svg.rect
@@ -97,14 +117,26 @@ viewBrick brick =
         []
 
 
+
+{--Give all bricks showing code--}
+
+
 viewBrickList : List Brick -> List (Svg Msg)
 viewBrickList a =
     List.map viewBrick a
 
 
+
+{--Move bricks--}
+
+
 updateBricks : List Brick -> List Brick
 updateBricks l =
     List.map brickMove l
+
+
+
+{---Move single brick--}
 
 
 brickMove : Brick -> Brick
@@ -117,6 +149,10 @@ brickMove b =
             checkLocation newShape1
     in
     { b | shape = newShape2, show = Maybe.withDefault b.show show }
+
+
+
+{--Check brick locations--}
 
 
 checkLocation : Rectangle -> ( Rectangle, Maybe String )

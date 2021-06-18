@@ -8,7 +8,7 @@ import Paddle exposing (..)
 import Rectangle exposing (..)
 import Global exposing(..)
 
-
+{--Check ball meet with bricks--}
 checkBallBrickMeet : Ball -> List Brick -> Dir
 checkBallBrickMeet ball brick =
     Maybe.withDefault NoDir
@@ -26,7 +26,7 @@ checkBallBrickMeet ball brick =
             )
         )
 
-
+{--Check ball meet with brick--}
 checkBallSingleBrickMeet : Ball -> Brick -> Dir
 checkBallSingleBrickMeet ball brick =
     if brick.show == "visible" then
@@ -35,17 +35,18 @@ checkBallSingleBrickMeet ball brick =
     else
         NoDir
 
-
+{--Check ball meet with paddle1--}
 checkBallPaddle1Meet : Ball -> Paddle -> Dir
 checkBallPaddle1Meet ball paddle =
     checkCircleRectangle ball.shape (firstPaddle paddle)
 
 
+{--Check ball meet with paddle2--}
 checkBallPaddle2Meet : Ball -> Paddle -> Dir
 checkBallPaddle2Meet ball paddle =
     checkCircleRectangle ball.shape (secondPaddle paddle)
 
-
+{--Check circle meeting with rectangle--}
 checkCircleRectangle : Circle -> Rectangle -> Dir
 checkCircleRectangle circle rectangle =
     if (abs (Tuple.first circle.position - Tuple.first rectangle.leftTopPosition) <= circle.r) && (Tuple.second circle.position >= Tuple.second rectangle.leftTopPosition && Tuple.second circle.position <= rectangle.height + Tuple.second rectangle.leftTopPosition) then
@@ -63,7 +64,7 @@ checkCircleRectangle circle rectangle =
     else
         NoDir
 
-
+{--Delete brick--}
 deleteBrick : Circle -> Brick -> Maybe ( Float, Float )
 deleteBrick circle brick =
     if brick.show == "hidden" then
@@ -84,7 +85,7 @@ deleteBrick circle brick =
     else
         Nothing
 
-
+{--Check ball meet with border--}
 checkBallBorderMeet : Ball -> ( Float, Float ) -> ( Ball, Int )
 checkBallBorderMeet ball ( x, y ) =
     let

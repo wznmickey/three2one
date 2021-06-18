@@ -12,12 +12,12 @@ type alias Circle =
     , r : Float
     }
 
-
+{--Init a circle--}
 initCircle : Color -> ( Float, Float ) -> Float -> Circle
 initCircle a b c =
     Circle a b c
 
-
+{--Give circle showing code--}
 viewCircle : Circle -> List (Svg Msg)
 viewCircle a =
     let
@@ -33,7 +33,7 @@ viewCircle a =
         []
     ]
 
-
+{--Move a circle--}
 moveCircle : Circle -> ( Float, Float ) -> Float -> Circle
 moveCircle c ( x, y ) time =
     { c | position = ( Tuple.first c.position + (x * time), Tuple.second c.position - (y * time) ) }

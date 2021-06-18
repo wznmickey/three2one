@@ -2,8 +2,11 @@ module Text exposing (controlIntr, getText)
 
 import Msg exposing (..)
 
+
 story1 =
     "Cosmical Pulse 2077: Green Warrior"
+
+
 story2 =
     "Good evening to all my fellow students and the executives on board! Group 13 is finally here to entertain you!\nTonight you must be really exhausted so far to maybe revive the softest and gentlest side of humanity by fixing what generates various emotions of all human beings or defend your country from the attack of aliens who covet the GPA of those graduate students, or maybe even make Silverfocs great again with a dedicated investigation into the traitor who revealed the secret of our algorithm to Fudan Inc. \nYou’ve all have done quite an amazing job that got you off the hook and might benefit many at the same time, but your duty tonight is yet to be fulfilled. There are far more people needing you right now than those in this company or school. And the show has just begun…"
 
@@ -36,6 +39,10 @@ controlIntr =
     "← → move spaceship \n $10 'Q' faster spaceship \n $20 'E' longer spaceship \n ↑  collector's upward acceleration \n ↓ collector's downward acceleration \n $200 New collector "
 
 
+
+{--Giving needed text--}
+
+
 getText : Msg -> String
 getText msg =
     case msg of
@@ -58,6 +65,7 @@ getText msg =
 
                 6 ->
                     story6
+
                 7 ->
                     story7
 

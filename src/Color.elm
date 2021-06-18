@@ -10,6 +10,10 @@ type alias Color =
     }
 
 
+
+{--Transfer color to showing code--}
+
+
 getcolor : Color -> String
 getcolor color =
     let

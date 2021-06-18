@@ -16,14 +16,26 @@ type alias Ball =
     }
 
 
+
+{--Init ball--}
+
+
 initBall : Ball
 initBall =
     Ball (initCircle (Color 255 101 101) ( 200, 271 ) 4) ( 0.15, 0.15 )
 
 
+
+{--Provide ball showing code--}
+
+
 viewBall : Ball -> List (Svg Msg)
 viewBall a =
     viewCircle a.shape
+
+
+
+{--Handle ball moving--}
 
 
 ballRun : Ball -> Float -> Ball
@@ -36,6 +48,10 @@ ballRun ball time =
             y - time * g
     in
     { ball | shape = moveCircle ball.shape ( x, vy ) time, speed = ( x, vy ) }
+
+
+
+{--Handle ball meeting bricks--}
 
 
 ballRotateWithBrick : Ball -> Dir -> Ball
@@ -78,6 +94,10 @@ ballRotateWithBrick ball dir =
 
         Right ->
             { ball | speed = ( abs (cos (180 - nangle) * nspeed), sin (180 - nangle) * nspeed ) }
+
+
+
+{--Handle ball rotate var--}
 
 
 ballRotate : Ball -> Dir -> Ball
@@ -133,6 +153,10 @@ ballRotate ball dir =
             { ball | speed = ( nx, ny ) }
 
 
+
+{--Give upward a--}
+
+
 ballSpeedUp : Ball -> Ball
 ballSpeedUp ball =
     let
@@ -142,6 +166,10 @@ ballSpeedUp ball =
     { ball | speed = ( x, y + 0.01 ) }
 
 
+
+{--Give downward a--}
+
+
 ballSpeedDown : Ball -> Ball
 ballSpeedDown ball =
     let
@@ -149,6 +177,10 @@ ballSpeedDown ball =
             ball.speed
     in
     { ball | speed = ( x, y - 0.01 ) }
+
+
+
+{--Get new ball--}
 
 
 backBall : Circle -> Paddle -> Circle

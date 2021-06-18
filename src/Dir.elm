@@ -9,6 +9,10 @@ type Dir
     | NoDir
 
 
+
+{--Transfer dir to number--}
+
+
 dir2Int : Dir -> Int
 dir2Int a =
     case a of
@@ -26,6 +30,10 @@ dir2Int a =
 
         NoDir ->
             0
+
+
+
+{--Transfer dir to number--}
 
 
 dir2Float : Dir -> Float

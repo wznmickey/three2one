@@ -12,8 +12,11 @@ type alias Rectangle =
     , leftTopPosition : ( Float, Float )
     , width : Float
     , height : Float
-    
     }
+
+
+
+{--Give rectangle showing code--}
 
 
 viewRectangle : Rectangle -> Svg Msg
@@ -24,25 +27,28 @@ viewRectangle a =
         , SvgAttr.x (String.fromFloat (Tuple.first a.leftTopPosition) ++ "px")
         , SvgAttr.y (String.fromFloat (Tuple.second a.leftTopPosition) ++ "px")
         , SvgAttr.fill (getcolor a.color)
-        
         ]
         []
-    
 
 
--- Rectangle -> Angle -> Length -> Rectangle
+
+{--Move rectangle--}
 
 
-moveRectangle : Rectangle -> Float -> Float ->  Rectangle
+moveRectangle : Rectangle -> Float -> Float -> Rectangle
 moveRectangle shape angle length =
     let
         newx =
-            Tuple.first shape.leftTopPosition + (cos (Basics.degrees angle) * (length)*2)
+            Tuple.first shape.leftTopPosition + (cos (Basics.degrees angle) * length * 2)
 
         newy =
-            Tuple.second shape.leftTopPosition - (sin (Basics.degrees angle) * (length)*2)
+            Tuple.second shape.leftTopPosition - (sin (Basics.degrees angle) * length * 2)
     in
     { shape | leftTopPosition = ( newx, newy ) }
+
+
+
+{--Check rectangle position--}
 
 
 checkRectanglePosition : Rectangle -> ( Float, Float ) -> List Rectangle
@@ -68,4 +74,4 @@ checkRectanglePosition r ( x, y ) =
             else
                 Tuple.second r.leftTopPosition
     in
-    [{ r | leftTopPosition = ( nx, ny ) }]
+    [ { r | leftTopPosition = ( nx, ny ) } ]
