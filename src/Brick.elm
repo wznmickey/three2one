@@ -21,13 +21,18 @@ type alias Brick =
     , show : String
     }
 
-brickrealsizeX=
+
+brickrealsizeX =
     30
-brickrealsizeY=
+
+
+brickrealsizeY =
     10
+
 
 bricksizeX =
     50
+
 
 bricksizeY =
     20
@@ -35,7 +40,7 @@ bricksizeY =
 
 setBricks : { location : Int, speed : Float, dir : Dir } -> Int -> List Brick -> ( List Brick, { location : Int, speed : Float, dir : Dir } )
 setBricks a b l =
-    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat (b*2) * bricksizeX, (toFloat a.location+2)* bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
+    ( l ++ [ Brick (Rectangle (Color 101 101 101) ( toFloat (b * 2) * bricksizeX, (toFloat a.location + 2) * bricksizeY ) brickrealsizeX brickrealsizeY) a.speed a.dir "visible" ], a )
 
 
 initBricks : Int -> Int -> Seed -> ( List Brick, Seed )
@@ -77,6 +82,7 @@ setLine i s =
     in
     ( { location = i, speed = nspeed, dir = ndir }, s2 )
 
+
 viewBrick : Brick -> Svg Msg
 viewBrick brick =
     Svg.rect
@@ -87,7 +93,6 @@ viewBrick brick =
         , SvgAttr.fill (getcolor brick.shape.color)
         , SvgAttr.stroke "pink"
         , SvgAttr.visibility brick.show
-        
         ]
         []
 
@@ -106,7 +111,7 @@ brickMove : Brick -> Brick
 brickMove b =
     let
         newShape1 =
-            moveRectangle b.shape (dir2Float b.direction) (b.speed)
+            moveRectangle b.shape (dir2Float b.direction) b.speed
 
         ( newShape2, show ) =
             checkLocation newShape1
@@ -117,7 +122,7 @@ brickMove b =
 checkLocation : Rectangle -> ( Rectangle, Maybe String )
 checkLocation shape =
     if Tuple.first shape.leftTopPosition + shape.width < -10 then
-        ( { shape | leftTopPosition = ( Tuple.first shape.leftTopPosition + wholeWidth+bricksizeX, Tuple.second shape.leftTopPosition ) }, Just "visible" )
+        ( { shape | leftTopPosition = ( Tuple.first shape.leftTopPosition + wholeWidth + bricksizeX, Tuple.second shape.leftTopPosition ) }, Just "visible" )
 
     else if Tuple.first shape.leftTopPosition > (10 + wholeWidth) then
         ( { shape | leftTopPosition = ( Tuple.first shape.leftTopPosition - wholeWidth, Tuple.second shape.leftTopPosition ) }, Just "visible" )

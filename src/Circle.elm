@@ -34,6 +34,6 @@ viewCircle a =
     ]
 
 
-moveCircle : Circle -> (Float,Float) -> Float -> Circle
-moveCircle c (x,y) time =
+moveCircle : Circle -> ( Float, Float ) -> Float -> Circle
+moveCircle c ( x, y ) time =
     { c | position = ( Tuple.first c.position + (x * time), Tuple.second c.position - (y * time) ) }

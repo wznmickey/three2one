@@ -53,6 +53,10 @@ type alias Model =
     }
 
 
+
+{--Init the model--}
+
+
 initModel : Seed -> ModelStatus -> Model
 initModel s status =
     let
@@ -94,9 +98,17 @@ initModel s status =
     Model status brick paddle ball size key_Press gameStatus seed score money text
 
 
+
+{--std init function--}
+
+
 init : () -> ( Model, Cmd Msg )
 init a =
     ( initModel (initialSeed 0) (Uninited 1), Cmd.batch [ perform GetTime now, Cmd.map (\_ -> Init) Cmd.none ] )
+
+
+
+{--std view function--}
 
 
 view : Model -> Html Msg
@@ -124,15 +136,32 @@ view model =
             [ HtmlAttr.style "position" "absolute"
             , HtmlAttr.style "left" "50%"
             , HtmlAttr.style "transform" "translate(-50%,-50%)"
-            , HtmlAttr.style "top" "70%"
+            , HtmlAttr.style "top" "75%"
             ]
             [ p [ HtmlAttr.hidden (not (checkPause model)), HtmlAttr.style "color" "pink" ] [ text "Press Space to continue" ]
             , p [ HtmlAttr.hidden (not (checkWaitS model)), HtmlAttr.style "color" "pink" ] [ text "Press S to start" ]
-            , renderInfo model model.score
-            , renderScore model
+            , p [ HtmlAttr.hidden (not (checkScore model)), HtmlAttr.style "color" "pink" ] [ text (Tuple.first model.text) ]
+            , renderInfo model
             , renderProperty model
             ]
         ]
+
+
+
+{--Check whether show skill introduction based on the score--}
+
+
+checkScore : Model -> Bool
+checkScore model =
+    if model.score <= 50 && model.score >= 5 && model.money > 0 then
+        True
+
+    else
+        False
+
+
+
+{--Check whether show the game or other things--}
 
 
 checkShowGame : Model -> Html Msg
@@ -144,7 +173,7 @@ checkShowGame model =
     if k == OnGround then
         p [ HtmlAttr.style "color" "pink", HtmlAttr.style "white-space" "pre-line", HtmlAttr.style "font-size" "small" ] [ text (Tuple.first model.text) ]
 
-    else
+    else if model.money > 0 then
         Svg.svg
             [ SvgAttr.width (fromInt wholeWidth)
             , SvgAttr.height (fromInt wholeHeight)
@@ -152,54 +181,63 @@ checkShowGame model =
             ]
             (viewBrickList model.brick ++ viewBall model.ball ++ viewPaddle model.paddle)
 
+    else
+        div
+            [ style "color" "pink"
+            , HtmlAttr.style "white-space" "pre-line"
+            , style "display"
+                (if model.money <= 0 then
+                    "block"
 
-renderInfo : Model -> Int -> Html Msg
-renderInfo mod score =
+                 else
+                    "none"
+                )
+            ]
+            [ text (getText (Game Stop))
+            ]
+
+
+
+{--Show score and money--}
+
+
+renderInfo : Model -> Html Msg
+renderInfo mod =
     div
-        -- [ style "background" "rgba(245,212,217, 0.7)"
         [ style "color" "pink"
-        , style "display"
-            (if mod.money < 0 then
-                "block"
-
-             else
-                "none"
-            )
+        , HtmlAttr.style "font-size" "large"
         ]
-        [ text ("Died! Score is " ++ toString score)
+        [ if mod.money <= 0 then
+            text (" Score is " ++ toString mod.score)
+
+          else
+            text ("Score: " ++ toString mod.score ++ " Money: " ++ toString mod.money)
         ]
 
 
-renderScore : Model -> Html Msg
-renderScore mod =
-    div
-        [ style "color" "pink"
-        , style "display"
-            (if mod.money >= 0 then
-                "block"
 
-             else
-                "none"
-            )
-        ]
-        [ text ("Score: " ++ toString mod.score ++ " Money: " ++ toString mod.money)
-        ]
+{--Show game related info --}
 
 
 renderProperty : Model -> Html Msg
 renderProperty mod =
     div
         [ style "color" "pink"
+        , HtmlAttr.style "white-space" "pre-line"
         , style "display"
-            (if mod.money >= 0 then
+            (if mod.money > 0 && mod.modelStatus == Inited then
                 "block"
 
              else
                 "none"
             )
         ]
-        [ text ("Speed: " ++ toString mod.paddle.speed ++ " Paddle Width: " ++ toString (firstPaddle mod.paddle).width)
+        [ text ("Speed: " ++ toString mod.paddle.speed ++ " Paddle Width: " ++ toString (firstPaddle mod.paddle).width ++ "\n" ++ controlIntr)
         ]
+
+
+
+{--Check whether there is a pause--}
 
 
 checkPause : Model -> Bool
@@ -251,12 +289,10 @@ showText msg ( model, cmd ) =
         ntext =
             case model.modelStatus of
                 Uninited x ->
-
-                        getText (Game (Story x))
-
+                    getText (Game (Story x))
 
                 _ ->
-                    ""
+                    Tuple.first model.text
 
         nlocation =
             case model.modelStatus of
@@ -264,7 +300,7 @@ showText msg ( model, cmd ) =
                     OnGround
 
                 _ ->
-                    NoLocation
+                    Tuple.second model.text
     in
     ( { model | text = ( ntext, nlocation ) }, cmd )
 
@@ -281,8 +317,8 @@ checkBuy1 model =
         olddpad =
             model.paddle
     in
-    if model.money >= 5 then
-        { model | money = oldmoney - 5, paddle = { olddpad | speed = oldspeed + 1 } }
+    if model.money >= 12 then
+        { model | money = oldmoney - 10, paddle = { olddpad | speed = oldspeed + 1 } }
 
     else
         model
@@ -300,8 +336,8 @@ checkBuy2 model =
         olddpad =
             model.paddle
     in
-    if model.money >= 10 then
-        { model | money = oldmoney - 10, paddle = { olddpad | shape = List.map (\theserec -> { theserec | width = oldwidth + 10 }) olddpad.shape } }
+    if model.money >= 22 then
+        { model | money = oldmoney - 20, paddle = { olddpad | shape = List.map (\theserec -> { theserec | width = oldwidth + 10 }) olddpad.shape } }
 
     else
         model
@@ -309,15 +345,19 @@ checkBuy2 model =
 
 checkBuy : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 checkBuy msg ( model, cmd ) =
-    case msg of
-        Buy 1 ->
-            ( checkBuy1 model, cmd )
+    if model.money == 1 then
+        ( { model | money = 0 }, cmd )
 
-        Buy 2 ->
-            ( checkBuy2 model, cmd )
+    else
+        case msg of
+            Buy 1 ->
+                ( checkBuy1 model, cmd )
 
-        _ ->
-            ( model, cmd )
+            Buy 2 ->
+                ( checkBuy2 model, cmd )
+
+            _ ->
+                ( model, cmd )
 
 
 checkInit : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -356,6 +396,25 @@ gameRunUpdate msg ( model, cmd ) =
 
         _ ->
             ( model, cmd )
+
+
+updateText : Model -> Model
+updateText model =
+    if model.money > 0 then
+        if model.score >= 5 && model.score <= 20 then
+            { model | text = ( getText (Game (Skill 1)), BelowGround ) }
+
+        else if model.score <= 35 && model.score >= 5 then
+            { model | text = ( getText (Game (Skill 2)), BelowGround ) }
+
+        else if model.score <= 50 && model.score >= 5 then
+            { model | text = ( getText (Game (Skill 3)), BelowGround ) }
+
+        else
+            model
+
+    else
+        model
 
 
 updateBrick : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -520,15 +579,28 @@ checkBallMeet msg ( model, cmd ) =
                     else
                         model.gameStatus
             in
-            ( { model
-                | ball = nowball4
-                , brick = newbricks
-                , gameStatus = ngameStatus
-                , score = oldscore + List.sum checkMeetBricks
-                , money = oldmoney + List.sum checkMeetBricks * 5 + dm
-              }
-            , cmd
-            )
+            if List.sum checkMeetBricks == 0 then
+                ( { model
+                    | ball = nowball4
+                    , brick = newbricks
+                    , gameStatus = ngameStatus
+                    , score = oldscore + List.sum checkMeetBricks
+                    , money = oldmoney + List.sum checkMeetBricks * 5 + dm
+                  }
+                , cmd
+                )
+
+            else
+                ( { model
+                    | ball = nowball4
+                    , brick = newbricks
+                    , gameStatus = ngameStatus
+                    , score = oldscore + List.sum checkMeetBricks
+                    , money = oldmoney + List.sum checkMeetBricks * 5 + dm
+                  }
+                    |> updateText
+                , cmd
+                )
 
         _ ->
             ( model, cmd )

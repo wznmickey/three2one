@@ -5,9 +5,10 @@ import Color exposing (..)
 import Dir exposing (..)
 import Global exposing (..)
 import Msg exposing (..)
+import Paddle exposing (..)
 import Svg exposing (Svg)
 import Svg.Attributes exposing (limitingConeAngle)
-import Paddle exposing (..)
+
 
 type alias Ball =
     { shape : Circle
@@ -76,7 +77,7 @@ ballRotateWithBrick ball dir =
             { ball | speed = ( -(abs (cos (180 - nangle) * nspeed)), sin (180 - nangle) * nspeed ) }
 
         Right ->
-            { ball | speed = ( (abs (cos (180 - nangle) * nspeed)), sin (180 - nangle) * nspeed ) }
+            { ball | speed = ( abs (cos (180 - nangle) * nspeed), sin (180 - nangle) * nspeed ) }
 
 
 ballRotate : Ball -> Dir -> Ball
@@ -149,8 +150,11 @@ ballSpeedDown ball =
     in
     { ball | speed = ( x, y - 0.01 ) }
 
+
 backBall : Circle -> Paddle -> Circle
 backBall shape paddle =
-    let (x,y)= getPaddleLocation paddle
+    let
+        ( x, y ) =
+            getPaddleLocation paddle
     in
-        {shape|position=(x,y+shape.r)}
+    { shape | position = ( x, y + shape.r ) }
